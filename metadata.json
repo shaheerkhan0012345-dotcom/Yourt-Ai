@@ -1,0 +1,6 @@
+{
+  "name": "Yourt AI",
+  "description": "All-in-one suite for YouTube creators featuring an advanced Thumbnail Generator, Idea Generator, Hook Generator, Script Generator, Title and Hashtag Generators.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

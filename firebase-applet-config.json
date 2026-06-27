@@ -1,0 +1,10 @@
+{
+  "projectId": "yourt-ai",
+  "appId": "1:560493534619:web:06431e0b609305daa4153e",
+  "apiKey": "AIzaSyBHB3QFPjhba6jI0KPtxhUGRkXW6pPZ6Rc",
+  "authDomain": "yourt-ai.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "yourt-ai.firebasestorage.app",
+  "messagingSenderId": "560493534619",
+  "measurementId": "G-3Z5E4RHKQX"
+}
