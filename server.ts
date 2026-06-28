@@ -78,7 +78,7 @@ async function generateResilientContent(
     try {
       console.log(`[Gemini API] Requesting ${model} with timeout ${timeoutMs}ms...`);
       
-      const response = await withTimeout(
+      const response: any = await withTimeout(
         ai.models.generateContent({
           model,
           contents,
