@@ -479,17 +479,7 @@ export default function App() {
     );
   }
 
-  // If the user is logged in, but we still want to show the landing page first
-  if (showLanding) {
-    return (
-      <LandingPageView 
-        onGetStarted={(mode) => {
-          // Since the user is already logged in, clicking any landing CTA directly enters the dashboard
-          setShowLanding(false);
-        }}
-      />
-    );
-  }
+
 
   return (
     <div className="bg-[#fbf9f9] text-[#1b1c1c] antialiased min-h-screen flex font-sans font-normal selection:bg-[#ff6b00]/15 selection:text-[#ff6b00]">

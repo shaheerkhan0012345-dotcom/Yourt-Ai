@@ -165,18 +165,7 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
           </button>
         </div>
 
-        {/* Micro guarantees tick checks */}
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] text-gray-400 font-semibold uppercase tracking-wider font-mono pt-2">
-          <div className="flex items-center gap-1.5">
-            <span className="text-red-500 font-bold">✕</span> No credit card required
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-emerald-500">✓</span> 20 free credits included
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-[#ff6b00]">✓</span> Cancel anytime
-          </div>
-        </div>
+
 
         {/* Creator avatar list mockup */}
         <div className="flex items-center justify-center gap-3 pt-6 border-t border-gray-100 max-w-md mx-auto">
@@ -946,7 +935,7 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
             Ready to Create Your First <span className="text-[#ff6b00]">Viral Short?</span>
           </h2>
           <p className="text-xs sm:text-sm text-gray-500 max-w-md mx-auto leading-relaxed font-sans pb-2">
-            Join thousands of creators who are already using Yourt AI to grow their channels. Start for free, no credit card required.
+            Join thousands of creators who are already using Yourt AI to grow their channels.
           </p>
           <button
             onClick={() => onGetStarted("signup")}

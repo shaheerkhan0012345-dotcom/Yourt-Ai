@@ -46,6 +46,19 @@ function parseRobustJson(text: string) {
   return JSON.parse(cleanText);
 }
 
+// Helper to execute a promise with a timeout
+function withTimeout<T>(promise: Promise<T>, ms: number, errorMessage = "Operation timed out"): Promise<T> {
+  let timeoutId: any;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(errorMessage));
+    }, ms);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId);
+  });
+}
+
 // Central wrapper for resilient generation
 async function generateResilientContent(
   ai: any,
@@ -54,18 +67,26 @@ async function generateResilientContent(
   config: any,
   fallbackGenerator: () => any
 ) {
-  // Use gemini-3.1-flash-lite first for lightning-fast low-latency generations as requested
-  const models = ["gemini-3.1-flash-lite", defaultModel];
+  // On Vercel, serverless function has a strict 10s execution limit.
+  // We limit retry models and enforce short timeouts to prevent 504 Gateway Timeouts.
+  const isVercel = !!process.env.VERCEL;
+  const models = isVercel ? [defaultModel] : ["gemini-3.1-flash-lite", defaultModel];
+  const timeoutMs = isVercel ? 5000 : 7000; // 5s timeout on Vercel, 7s otherwise
   let lastError: any = null;
 
   for (const model of models) {
     try {
-      console.log(`[Gemini API] Requesting ${model}...`);
-      const response = await ai.models.generateContent({
-        model,
-        contents,
-        config,
-      });
+      console.log(`[Gemini API] Requesting ${model} with timeout ${timeoutMs}ms...`);
+      
+      const response = await withTimeout(
+        ai.models.generateContent({
+          model,
+          contents,
+          config,
+        }),
+        timeoutMs,
+        `Gemini API call to ${model} timed out after ${timeoutMs}ms`
+      );
 
       if (response && response.text) {
         console.log(`[Gemini API] Successfully generated using ${model}.`);
@@ -80,13 +101,16 @@ async function generateResilientContent(
     } catch (err: any) {
       console.warn(`[Gemini API] Failed generation with ${model}:`, err.message || err);
       lastError = err;
-      // Short delay before trying the next model
-      await new Promise((resolve) => setTimeout(resolve, 150));
+      
+      // If we are on Vercel or have tried all models, don't sleep
+      if (model !== models[models.length - 1]) {
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      }
     }
   }
 
-  // If both models fail, use the local context-aware mockup generator
-  console.warn("[Gemini API] All physical models are currently experiencing high demand. Activating resilient high-quality local generator fallback to ensure zero user downtime.");
+  // If physical models fail or time out, use the local context-aware mockup generator
+  console.warn("[Gemini API] All physical models are currently experiencing high demand or timed out. Activating resilient high-quality local generator fallback to ensure zero user downtime.");
   return fallbackGenerator();
 }
 
