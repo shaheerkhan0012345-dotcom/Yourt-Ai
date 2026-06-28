@@ -61,10 +61,10 @@ export default function App() {
     };
   });
 
-  // User credits defaults to full (2500)
+  // User credits defaults to full (250)
   const [credits, setCredits] = useState<number>(() => {
     const raw = localStorage.getItem("yourt_credits");
-    return raw ? parseInt(raw, 10) : 2500;
+    return raw ? parseInt(raw, 10) : 250;
   });
 
   const [savedList, setSavedList] = useState<SavedItem[]>([]);
@@ -94,7 +94,7 @@ export default function App() {
       }
 
       const rawCredits = localStorage.getItem("yourt_credits");
-      setCredits(rawCredits ? parseInt(rawCredits, 10) : 2500);
+      setCredits(rawCredits ? parseInt(rawCredits, 10) : 250);
 
       const rawSavedList = localStorage.getItem("yourt_saved_assets");
       if (rawSavedList) {
@@ -188,7 +188,7 @@ export default function App() {
         marketEmails: false,
         aiModel: "Gemini 2.5 Flash (Recommended)"
       });
-      setCredits(2500);
+      setCredits(250);
       setSavedList([]);
       setCalendarEvents([]);
 
@@ -215,7 +215,7 @@ export default function App() {
               marketEmails: false,
               aiModel: "Gemini 2.5 Flash (Recommended)"
             });
-            setCredits(2500);
+            setCredits(250);
             setSavedList([]);
             setCalendarEvents([]);
           }

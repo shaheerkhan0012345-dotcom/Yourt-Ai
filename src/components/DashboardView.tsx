@@ -44,7 +44,7 @@ export default function DashboardView({ setTab, savedList, credits, setCredits, 
   const [showAllGenerators, setShowAllGenerators] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([
-    { id: 1, text: "🎉 Welcome back! Your 2,000 launch credits have been fully loaded.", time: "Just now", unread: true },
+    { id: 1, text: "🎉 Welcome back! Your 250 launch credits have been fully loaded.", time: "Just now", unread: true },
     { id: 2, text: "🦾 Google Gemini API server connection initialized and optimized.", time: "1 hour ago", unread: true },
     { id: 3, text: "💡 Every AI generation is set to cost 50 credits.", time: "2 hours ago", unread: false },
     { id: 4, text: "🔥 Tip: Save your best hooks and outlines to view them in history.", time: "1 day ago", unread: false }

@@ -103,6 +103,25 @@ export default function TrendAnalyzerView({ onSave, savedList, credits, deductCr
   const [loadingCTR, setLoadingCTR] = useState(false);
   const [ctrReport, setCtrReport] = useState<CTREvaluationResponse | null>(null);
   const [activeMainTab, setActiveMainTab] = useState<"trends" | "predictor">("trends");
+  
+  // Custom YouTube Niche search
+  const [searchNicheQuery, setSearchNicheQuery] = useState("");
+
+  const handleNicheSearch = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const query = searchNicheQuery.trim();
+    if (!query) return;
+
+    // Check if it matches existing category
+    const found = categories.find(
+      (c) => c.id.toLowerCase() === query.toLowerCase() || c.label.toLowerCase() === query.toLowerCase()
+    );
+    if (found) {
+      setActiveCategory(found.id);
+    } else {
+      setActiveCategory(query);
+    }
+  };
 
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -293,6 +312,35 @@ export default function TrendAnalyzerView({ onSave, savedList, credits, deductCr
                 Select Creative Vertical
               </h3>
 
+              {/* Custom YouTube Niche Search Bar */}
+              <form onSubmit={handleNicheSearch} className="space-y-2">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+                  Search Custom Niche on YouTube
+                </label>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="e.g., Mechanical Keyboards..."
+                      value={searchNicheQuery}
+                      onChange={(e) => setSearchNicheQuery(e.target.value)}
+                      className="w-full pl-9 pr-3 py-2 text-xs border border-gray-200 rounded-xl bg-gray-50/50 focus:bg-white focus:outline-none focus:border-[#FF6B00] transition-colors"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="bg-[#0d0d0d] hover:bg-[#FF6B00] text-white px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-98 cursor-pointer shrink-0"
+                  >
+                    Search
+                  </button>
+                </div>
+              </form>
+
+              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                Or select preset vertical:
+              </div>
+
               <div className="grid grid-cols-1 gap-2.5">
                 {categories.map((cat) => (
                   <button
@@ -304,6 +352,17 @@ export default function TrendAnalyzerView({ onSave, savedList, credits, deductCr
                     <p className="text-[10px] text-gray-400 font-medium font-sans mt-0.5">{cat.desc}</p>
                   </button>
                 ))}
+
+                {/* Show custom niche block if activeCategory is not in pre-defined list */}
+                {!categories.some(cat => cat.id === activeCategory) && (
+                  <div className="p-3.5 rounded-xl text-left border bg-[#FFF2EB] border-[#FF6B00] shadow-2xs relative overflow-hidden">
+                    <div className="absolute right-2.5 top-2.5 bg-[#FF6B00]/10 text-[#FF6B00] text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide">
+                      Active Search
+                    </div>
+                    <p className="text-xs font-bold text-gray-800">{activeCategory}</p>
+                    <p className="text-[10px] text-gray-400 font-medium font-sans mt-0.5">Custom searched niche on YouTube</p>
+                  </div>
+                )}
               </div>
 
               {/* Action Trigger Button */}

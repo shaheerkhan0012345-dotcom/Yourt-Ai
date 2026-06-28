@@ -82,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const defaultData = {
               uid: currentUser.uid,
               profile: initialProfile,
-              credits: 2500,
+              credits: 250,
               savedList: [],
               calendarEvents: [],
               createdAt: new Date().toISOString()
@@ -146,7 +146,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await setDoc(userDocRef, {
         uid: newUser.uid,
         profile: newProfile,
-        credits: 2500,
+        credits: 250,
         savedList: [],
         calendarEvents: [],
         createdAt: new Date().toISOString()
