@@ -1,8 +1,4 @@
 {
-  "version": 2,
-  "vercelToolbar": {
-    "enabled": false
-  },
   "rewrites": [
     {
       "source": "/api/(.*)",
