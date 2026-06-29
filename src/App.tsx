@@ -14,6 +14,7 @@ import HelpCenterView from "./components/HelpCenterView";
 import ChatWidget from "./components/ChatWidget";
 import AuthScreen from "./components/AuthScreen";
 import LandingPageView from "./components/LandingPageView";
+import CustomCursor from "./components/CustomCursor";
 import YourtLogo from "./components/YourtLogo";
 import { useAuth } from "./context/AuthContext";
 import { SavedItem, CalendarEvent, UserProfile } from "./types";
@@ -196,12 +197,17 @@ export default function App() {
       setSavedList([]);
       setCalendarEvents([]);
 
-      const fetchUserData = async () => {
+       const fetchUserData = async () => {
         try {
           const { doc, getDoc } = await import("firebase/firestore");
           const { db } = await import("./lib/firebase");
           const userDocRef = doc(db, "yourt_users", user.uid);
-          const snap = await getDoc(userDocRef);
+          
+          const getDocPromise = getDoc(userDocRef);
+          const timeoutPromise = new Promise<never>((_, reject) => 
+            setTimeout(() => reject(new Error("Firestore fetch timed out")), 1500)
+          );
+          const snap = await Promise.race([getDocPromise, timeoutPromise]);
           if (snap.exists()) {
             const data = snap.data();
             if (data.profile) setUserProfile(data.profile);
@@ -474,66 +480,71 @@ export default function App() {
     );
   }
 
+  let content;
   if (!user) {
     if (authFormMode !== null) {
-      return (
+      content = (
         <AuthScreen 
           onBack={() => setAuthFormMode(null)}
           initialMode={authFormMode}
         />
       );
+    } else {
+      content = (
+        <LandingPageView 
+          onGetStarted={(mode) => {
+            setAuthFormMode(mode);
+          }}
+        />
+      );
     }
+  } else {
+    content = (
+      <div className="bg-[#fbf9f9] text-[#1b1c1c] antialiased min-h-screen flex font-sans font-normal selection:bg-[#ff6b00]/15 selection:text-[#ff6b00]">
+        {/* Side Navigation panel */}
+        <Sidebar 
+          currentTab={currentTab} 
+          setTab={setCurrentTab} 
+          isOpen={sidebarOpen} 
+          setOpen={setSidebarOpen}
+          onNewResearch={handleNewResearch}
+          userProfile={userProfile}
+          credits={credits}
+        />
 
-    return (
-      <LandingPageView 
-        onGetStarted={(mode) => {
-          setAuthFormMode(mode);
-        }}
-      />
+        {/* Main Container */}
+        <main className="flex-1 md:ml-64 p-4 md:p-12 max-w-[1280px] mx-auto w-full pt-16 md:pt-12 min-h-screen flex flex-col justify-between">
+          
+          {/* Dynamic warning / feedback ticker */}
+          {sessionAlert && (
+            <div className="fixed bottom-4 right-4 z-50 bg-black text-white px-4 py-3 rounded-xl border border-white/10 shadow-xl flex items-center gap-2 max-w-sm animate-bounce">
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+              <p className="text-xs font-semibold leading-relaxed font-sans">{sessionAlert}</p>
+            </div>
+          )}
+
+          <div className="flex-1 pb-12">
+            {renderContentView()}
+          </div>
+
+          {/* Footer legal credits */}
+          <footer className="border-t border-gray-200/50 pt-4 text-center">
+            <p className="text-[10px] text-gray-400 font-sans tracking-wide">
+              Powered by Google GenAI SDK. Designed with Corporate Modernism guidelines. © 2026 Yourt AI Creator Suite. All rights reserved.
+            </p>
+          </footer>
+        </main>
+
+        {/* Floating AI support assistant */}
+        <ChatWidget />
+      </div>
     );
   }
 
-
-
   return (
-    <div className="bg-[#fbf9f9] text-[#1b1c1c] antialiased min-h-screen flex font-sans font-normal selection:bg-[#ff6b00]/15 selection:text-[#ff6b00]">
-      
-      {/* Side Navigation panel */}
-      <Sidebar 
-        currentTab={currentTab} 
-        setTab={setCurrentTab} 
-        isOpen={sidebarOpen} 
-        setOpen={setSidebarOpen}
-        onNewResearch={handleNewResearch}
-        userProfile={userProfile}
-        credits={credits}
-      />
-
-      {/* Main Container */}
-      <main className="flex-1 md:ml-64 p-4 md:p-12 max-w-[1280px] mx-auto w-full pt-16 md:pt-12 min-h-screen flex flex-col justify-between">
-        
-        {/* Dynamic warning / feedback ticker */}
-        {sessionAlert && (
-          <div className="fixed bottom-4 right-4 z-50 bg-black text-white px-4 py-3 rounded-xl border border-white/10 shadow-xl flex items-center gap-2 max-w-sm animate-bounce">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-            <p className="text-xs font-semibold leading-relaxed font-sans">{sessionAlert}</p>
-          </div>
-        )}
-
-        <div className="flex-1 pb-12">
-          {renderContentView()}
-        </div>
-
-        {/* Footer legal credits */}
-        <footer className="border-t border-gray-200/50 pt-4 text-center">
-          <p className="text-[10px] text-gray-400 font-sans tracking-wide">
-            Powered by Google GenAI SDK. Designed with Corporate Modernism guidelines. © 2026 Yourt AI Creator Suite. All rights reserved.
-          </p>
-        </footer>
-      </main>
-
-      {/* Floating AI support assistant */}
-      <ChatWidget />
-    </div>
+    <>
+      {content}
+      <CustomCursor />
+    </>
   );
 }

@@ -54,7 +54,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Fetch or create user record in Firestore
         try {
           const userDocRef = doc(db, "yourt_users", currentUser.uid);
-          const userSnap = await getDoc(userDocRef);
+          
+          // Use Promise.race to enforce a 1.5s timeout on Firestore fetching
+          const getDocPromise = getDoc(userDocRef);
+          const timeoutPromise = new Promise<never>((_, reject) => 
+            setTimeout(() => reject(new Error("Firestore fetch timed out")), 1500)
+          );
+          const userSnap = await Promise.race([getDocPromise, timeoutPromise]);
 
           if (userSnap.exists()) {
             const data = userSnap.data();

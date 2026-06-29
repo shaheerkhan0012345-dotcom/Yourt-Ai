@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import YourtLogo from "./YourtLogo";
+import ThreeDCard from "./ThreeDCard";
 import { 
   Sparkles, 
   ArrowRight, 
@@ -85,11 +86,99 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
     }
   };
 
+  // GSAP-style premium animation configurations
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.12,
+        delayChildren: 0.05,
+      }
+    }
+  };
+
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 35 },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 65,
+        damping: 14,
+      }
+    }
+  };
+
+  const fadeInScale = {
+    hidden: { opacity: 0, scale: 0.94, y: 15 },
+    show: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 80,
+        damping: 15,
+      }
+    }
+  };
+
+  const slideInLeft = {
+    hidden: { opacity: 0, x: -50, y: 10 },
+    show: {
+      opacity: 1,
+      x: 0,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 55,
+        damping: 14,
+      }
+    }
+  };
+
+  const slideInRight = {
+    hidden: { opacity: 0, x: 50, y: 10 },
+    show: {
+      opacity: 1,
+      x: 0,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 55,
+        damping: 14,
+      }
+    }
+  };
+
+  const cardHover = {
+    initial: { y: 0, scale: 1, boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)" },
+    hover: {
+      y: -8,
+      scale: 1.02,
+      boxShadow: "0 20px 25px -5px rgba(255, 107, 0, 0.08), 0 8px 10px -6px rgba(255, 107, 0, 0.08)",
+      borderColor: "rgba(255, 107, 0, 0.25)",
+      transition: {
+        type: "spring",
+        stiffness: 250,
+        damping: 18,
+      }
+    }
+  };
+
   return (
     <div className="bg-[#fbf9f9] text-[#1b1c1c] font-sans overflow-x-hidden selection:bg-[#ff6b00]/15 selection:text-[#ff6b00] min-h-screen flex flex-col justify-between" id="yourt-landing-root">
       
       {/* 1. GLASSMORPHIC TOP NAVIGATION GLASS */}
-      <header className="sticky top-0 z-50 bg-[#fbf9f9]/85 backdrop-blur-xl border-b border-[#efeded]/60 px-4 sm:px-8 py-4 flex items-center justify-between transition-all" id="landing-navbar">
+      <motion.header 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 80, damping: 15, delay: 0.1 }}
+        className="sticky top-0 z-50 bg-[#fbf9f9]/85 backdrop-blur-xl border-b border-[#efeded]/60 px-4 sm:px-8 py-4 flex items-center justify-between transition-all" 
+        id="landing-navbar"
+      >
         <div className="flex items-center gap-2 select-none">
           <YourtLogo size={36} />
           <div className="flex flex-col">
@@ -123,34 +212,52 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
             Get Started
           </button>
         </div>
-      </header>
+      </motion.header>
 
       {/* 2. MAJESTIC HERO SECTION WITH BADGES */}
-      <section className="px-4 sm:px-6 lg:px-8 max-w-[1280px] mx-auto pt-16 pb-20 text-center space-y-8 select-none" id="features">
+      <motion.section 
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+        className="px-4 sm:px-6 lg:px-8 max-w-[1280px] mx-auto pt-16 pb-20 text-center space-y-8 select-none" 
+        id="features"
+      >
         
         {/* Sparkle Pill Badge representation */}
-        <div className="inline-flex items-center gap-1.5 bg-[#ff6b00]/10 border border-[#ff6b00]/25 rounded-full px-4 py-1.5 text-[10px] font-bold text-[#ff6b00] tracking-widest uppercase font-display animate-fade-in shadow-2xs">
+        <motion.div 
+          variants={fadeInUp}
+          className="inline-flex items-center gap-1.5 bg-[#ff6b00]/10 border border-[#ff6b00]/25 rounded-full px-4 py-1.5 text-[10px] font-bold text-[#ff6b00] tracking-widest uppercase font-display shadow-2xs"
+        >
           <Sparkles className="w-3.5 h-3.5" />
           YOURT AI CREATOR SUITE 2.0
-        </div>
+        </motion.div>
 
         {/* Aggressive Large Headline holding orange box pill */}
-        <h1 className="font-display font-black text-4xl sm:text-6xl md:text-7xl text-[#0D0D0D] tracking-tight leading-[1.08] max-w-4xl mx-auto">
+        <motion.h1 
+          variants={fadeInUp}
+          className="font-display font-black text-4xl sm:text-6xl md:text-7xl text-[#0D0D0D] tracking-tight leading-[1.08] max-w-4xl mx-auto"
+        >
           Create viral shorts<br />
           in <span className="inline-block relative bg-[#ff6b00] text-white px-5 sm:px-7 py-1 sm:py-2.5 rounded-3xl transform -rotate-1 skew-x-1 shadow-md">seconds</span><br />
           with AI
-        </h1>
+        </motion.h1>
 
         {/* Description / Subtitle font pairing */}
-        <p className="text-sm sm:text-base text-gray-500 max-w-2xl mx-auto leading-relaxed font-sans">
+        <motion.p 
+          variants={fadeInUp}
+          className="text-sm sm:text-base text-gray-500 max-w-2xl mx-auto leading-relaxed font-sans"
+        >
           Stop guessing what works. Yourt AI uses advanced data models to generate high-retention scripts, viral hooks, and click-magnet titles in seconds.
-        </p>
+        </motion.p>
 
         {/* Massive Primary CTA Action */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 font-sans">
+        <motion.div 
+          variants={fadeInUp}
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 font-sans"
+        >
           <button
             onClick={() => onGetStarted("signup")}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-[#ff6b00] hover:bg-[#e05e00] hover:scale-101 text-white font-bold text-sm px-8 py-4.5 rounded-2xl transition-all shadow-md animate-pulse cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-[#ff6b00] hover:bg-[#e05e00] hover:scale-101 text-white font-bold text-sm px-8 py-4.5 rounded-2xl transition-all shadow-md cursor-pointer"
             id="hero-primary-cta"
           >
             Start Creating Free
@@ -163,12 +270,13 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
           >
             Sign In to Account
           </button>
-        </div>
-
-
+        </motion.div>
 
         {/* Creator avatar list mockup */}
-        <div className="flex items-center justify-center gap-3 pt-6 border-t border-gray-100 max-w-md mx-auto">
+        <motion.div 
+          variants={fadeInUp}
+          className="flex items-center justify-center gap-3 pt-6 border-t border-gray-100 max-w-md mx-auto"
+        >
           <div className="flex -space-x-2.5">
             <img className="w-8 h-8 rounded-full border-2 border-white object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120" alt="creator" referrerPolicy="no-referrer" />
             <img className="w-8 h-8 rounded-full border-2 border-white object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120" alt="creator" referrerPolicy="no-referrer" />
@@ -180,13 +288,24 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
           <p className="text-[11px] text-gray-500 font-semibold font-sans">
             <strong className="text-black font-black">10,000+</strong> creators already using Yourt AI
           </p>
-        </div>
+        </motion.div>
 
         {/* BEFORE & AFTER CINEMATIC REPRESENTATION */}
-        <div className="grid grid-cols-1 md:grid-cols-11 items-center gap-6 pt-16 max-w-4xl mx-auto" id="before-after-grid">
+        <motion.div 
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={staggerContainer}
+          className="grid grid-cols-1 md:grid-cols-11 items-center gap-6 pt-16 max-w-4xl mx-auto" 
+          id="before-after-grid"
+        >
           
           {/* Card Left: Before */}
-          <div className="md:col-span-5 bg-white border border-gray-150 rounded-3xl p-8 shadow-xs flex flex-col items-center justify-center space-y-6 aspect-video select-none transform hover:scale-99 transition-all">
+          <motion.div 
+            variants={slideInLeft}
+            whileHover={{ y: -4, transition: { type: "spring", stiffness: 300, damping: 20 } }}
+            className="md:col-span-5 bg-white border border-gray-150 rounded-3xl p-8 shadow-xs flex flex-col items-center justify-center space-y-6 aspect-video select-none transition-all cursor-pointer"
+          >
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
               <FileText className="w-7 h-7 stroke-[1.5]" />
             </div>
@@ -199,20 +318,27 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
             <span className="text-[10px] bg-gray-100 text-gray-500 rounded-lg px-2.5 py-1 font-black uppercase tracking-wider font-sans">
               Before
             </span>
-          </div>
+          </motion.div>
 
           {/* Middle Arrow Connector */}
-          <div className="md:col-span-1 flex flex-col items-center justify-center gap-2">
+          <motion.div 
+            variants={fadeInScale}
+            className="md:col-span-1 flex flex-col items-center justify-center gap-2"
+          >
             <div className="w-10 h-10 rounded-full bg-[#ff6b00]/10 flex items-center justify-center text-[#ff6b00] transform rotate-90 md:rotate-0">
               <ArrowRight className="w-5 h-5 stroke-[2.5]" />
             </div>
             <span className="text-[9px] text-gray-400 font-mono font-bold tracking-tight uppercase text-center max-w-[80px] hidden md:block">
               AI empowers your workflow
             </span>
-          </div>
+          </motion.div>
 
           {/* Card Right: After */}
-          <div className="md:col-span-5 bg-[#FAF9F9] border border-gray-150 rounded-3xl p-6 shadow-sm hover:border-[#ff6b00]/20 transition-all duration-300 flex flex-col justify-between overflow-hidden group select-none transition-all transform hover:scale-101">
+          <motion.div 
+            variants={slideInRight}
+            whileHover={{ y: -4, scale: 1.01, transition: { type: "spring", stiffness: 300, damping: 20 } }}
+            className="md:col-span-5 bg-[#FAF9F9] border border-gray-150 rounded-3xl p-6 shadow-sm hover:border-[#ff6b00]/20 transition-all duration-300 flex flex-col justify-between overflow-hidden group select-none cursor-pointer"
+          >
             
             {/* YouTube-style Thumbnail Card Mockup */}
             <div className="bg-[#0D0D0D] rounded-2xl overflow-hidden shadow-lg border-0 p-3.5 flex flex-col space-y-2.5">
@@ -302,29 +428,45 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                 After
               </span>
             </div>
-          </div>
+          </motion.div>
+        </motion.div>
 
-        </div>
-
-      </section>
+      </motion.section>
 
       {/* 3. BENTO GRID: THE COMPLETE CREATOR ENGINE */}
       <section className="bg-white border-t border-b border-[#efeded]/70 py-20 px-4 sm:px-6 lg:px-8 select-none" id="features">
         <div className="max-w-[1280px] mx-auto space-y-12">
           
-          <div className="text-center space-y-2.5">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ type: "spring", stiffness: 70, damping: 15 }}
+            className="text-center space-y-2.5"
+          >
             <h2 className="font-display font-black text-3xl sm:text-5xl text-[#0D0D0D] tracking-tight">
               The Complete Creator Engine
             </h2>
             <p className="text-xs sm:text-sm text-gray-500 max-w-xl mx-auto leading-relaxed font-sans">
               Everything you need to go from blank page to viral short, housed in one clean workspace.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4" id="bento-creator-grid">
+          <motion.div 
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4" 
+            id="bento-creator-grid"
+          >
             
             {/* Bento Block 1: Idea Generator */}
-            <div className="bg-[#fbf9f9] border border-[#efeded] rounded-3xl p-6 flex flex-col justify-between space-y-6 hover:border-[#ff6b00]/30 transition-all duration-200">
+            <motion.div 
+              variants={fadeInUp}
+              whileHover={{ y: -6, scale: 1.015, borderColor: "rgba(255,107,0,0.25)", transition: { type: "spring", stiffness: 300, damping: 20 } }}
+              className="bg-[#fbf9f9] border border-[#efeded] rounded-3xl p-6 flex flex-col justify-between space-y-6 transition-colors duration-250 cursor-pointer"
+            >
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <span className="text-[9px] font-bold uppercase tracking-wider text-[#ff6b00] bg-[#ff6b00]/10 px-2 py-0.5 rounded-md font-sans flex items-center gap-1">
@@ -333,7 +475,7 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                 </div>
                 {/* Visual outline decoration */}
                 <div className="bg-white border border-gray-105 rounded-2xl p-4.5 space-y-3">
-                  <div className="h-3 w-4/12 bg-gray-200 rounded-md" />
+                  <div className="h-3 w-4/12 bg-gray-200 rounded-md animate-pulse" />
                   <div className="space-y-1.5">
                     <div className="h-2 w-full bg-gray-100 rounded" />
                     <div className="h-2 w-11/12 bg-gray-100 rounded" />
@@ -350,10 +492,14 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                   Input any niche, get 10 proven viral angles backed by high-retention current YouTube search trends.
                 </p>
               </div>
-            </div>
+            </motion.div>
 
             {/* Bento Block 2: Hook Generator */}
-            <div className="bg-[#fbf9f9] border border-[#efeded] rounded-3xl p-6 flex flex-col justify-between space-y-6 hover:border-[#ff6b00]/30 transition-all duration-200">
+            <motion.div 
+              variants={fadeInUp}
+              whileHover={{ y: -6, scale: 1.015, borderColor: "rgba(255,107,0,0.25)", transition: { type: "spring", stiffness: 300, damping: 20 } }}
+              className="bg-[#fbf9f9] border border-[#efeded] rounded-3xl p-6 flex flex-col justify-between space-y-6 transition-colors duration-250 cursor-pointer"
+            >
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <span className="text-[9px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md font-sans flex items-center gap-1">
@@ -379,10 +525,14 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                   Generate high-impact opening lines designed to lock in viewer attention within the critical first 3 seconds.
                 </p>
               </div>
-            </div>
+            </motion.div>
 
             {/* Bento Block 3: Script Generation */}
-            <div className="bg-[#fbf9f9] border border-[#efeded] rounded-3xl p-6 flex flex-col justify-between space-y-6 hover:border-[#ff6b00]/30 transition-all duration-200">
+            <motion.div 
+              variants={fadeInUp}
+              whileHover={{ y: -6, scale: 1.015, borderColor: "rgba(255,107,0,0.25)", transition: { type: "spring", stiffness: 300, damping: 20 } }}
+              className="bg-[#fbf9f9] border border-[#efeded] rounded-3xl p-6 flex flex-col justify-between space-y-6 transition-colors duration-250 cursor-pointer"
+            >
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <span className="text-[9px] font-bold uppercase tracking-wider text-black bg-black/5 px-2 py-0.5 rounded-md font-sans flex items-center gap-1">
@@ -397,7 +547,7 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                   </div>
                   <div className="space-y-2">
                     <div className="flex gap-1.5 items-center">
-                      <div className="w-1.5 h-1.5 bg-[#ff6b00] rounded-full" />
+                      <div className="w-1.5 h-1.5 bg-[#ff6b00] rounded-full animate-ping" />
                       <div className="h-2 w-10/12 bg-[#efeded] rounded" />
                     </div>
                     <div className="flex gap-1.5 items-center">
@@ -416,10 +566,14 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                   Full 60-second scripts paced for high retention, complete with B-roll visual cues and text overlay alerts.
                 </p>
               </div>
-            </div>
+            </motion.div>
 
             {/* Bento Block 4: Title Optimization */}
-            <div className="bg-[#fbf9f9] border border-[#efeded] rounded-3xl p-6 flex flex-col justify-between space-y-6 hover:border-[#ff6b00]/30 transition-all duration-200">
+            <motion.div 
+              variants={fadeInUp}
+              whileHover={{ y: -6, scale: 1.015, borderColor: "rgba(255,107,0,0.25)", transition: { type: "spring", stiffness: 300, damping: 20 } }}
+              className="bg-[#fbf9f9] border border-[#efeded] rounded-3xl p-6 flex flex-col justify-between space-y-6 transition-colors duration-250 cursor-pointer"
+            >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md font-sans flex items-center gap-1">
@@ -447,10 +601,14 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                   Click-through-rate optimized titles designed to maximize algorithmic push on global feeds.
                 </p>
               </div>
-            </div>
+            </motion.div>
 
             {/* Bento Block 5: Hashtag Generator */}
-            <div className="bg-[#fbf9f9] border border-[#efeded] rounded-3xl p-6 flex flex-col justify-between space-y-6 hover:border-[#ff6b00]/30 transition-all duration-200">
+            <motion.div 
+              variants={fadeInUp}
+              whileHover={{ y: -6, scale: 1.015, borderColor: "rgba(255,107,0,0.25)", transition: { type: "spring", stiffness: 300, damping: 20 } }}
+              className="bg-[#fbf9f9] border border-[#efeded] rounded-3xl p-6 flex flex-col justify-between space-y-6 transition-colors duration-250 cursor-pointer"
+            >
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <span className="text-[9px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md font-sans flex items-center gap-1">
@@ -473,10 +631,14 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                   Locate trending, high-volume hashtags tailored to your exact video category to target proper distribution.
                 </p>
               </div>
-            </div>
+            </motion.div>
 
             {/* Bento Block 6: Trend Analyzer */}
-            <div className="bg-[#fbf9f9] border border-[#efeded] rounded-3xl p-6 flex flex-col justify-between space-y-6 hover:border-[#ff6b00]/30 transition-all duration-200">
+            <motion.div 
+              variants={fadeInUp}
+              whileHover={{ y: -6, scale: 1.015, borderColor: "rgba(255,107,0,0.25)", transition: { type: "spring", stiffness: 300, damping: 20 } }}
+              className="bg-[#fbf9f9] border border-[#efeded] rounded-3xl p-6 flex flex-col justify-between space-y-6 transition-colors duration-250 cursor-pointer"
+            >
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <span className="text-[9px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md font-sans flex items-center gap-1">
@@ -503,30 +665,43 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                   Analyze trending topics, identify competitor gaps, and upload thumbnails or input titles to predict CTR score with high-accuracy Gemini evaluation.
                 </p>
               </div>
-            </div>
+            </motion.div>
 
-          </div>
+          </motion.div>
 
         </div>
       </section>
 
       {/* 4. THREE STEPS ACTION LAYOUT */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 select-none" id="steps">
+      <motion.section 
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={staggerContainer}
+        className="py-20 px-4 sm:px-6 lg:px-8 select-none" 
+        id="steps"
+      >
         <div className="max-w-[1280px] mx-auto space-y-16">
           
-          <div className="text-center space-y-3">
+          <motion.div 
+            variants={fadeInUp}
+            className="text-center space-y-3"
+          >
             <h2 className="font-display font-black text-3xl sm:text-5xl text-[#0D0D0D] tracking-tight">
               Three Steps to <span className="text-[#ff6b00]">Viral Content</span>
             </h2>
             <p className="text-xs sm:text-sm text-gray-500 max-w-xl mx-auto leading-relaxed font-sans">
               The simplest way to brainstorm, write, and plan professional video concepts
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pt-4" id="steps-cols-layout">
             
             {/* Step 1 */}
-            <div className="space-y-5 text-center flex flex-col items-center">
+            <ThreeDCard 
+              variants={fadeInUp}
+              className="space-y-5 text-center flex flex-col items-center bg-white border border-gray-105 p-6 rounded-3xl shadow-3xs cursor-pointer"
+            >
               <div className="relative">
                 <div className="w-16 h-16 rounded-3xl bg-gray-100/70 border border-gray-150 flex items-center justify-center text-gray-700">
                   <Lightbulb className="w-6 h-6 stroke-[1.8]" />
@@ -543,10 +718,13 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                   Enter your video theme, creator style, or niche category to instantly begin the creative brainstorming process.
                 </p>
               </div>
-            </div>
+            </ThreeDCard>
 
             {/* Step 2 */}
-            <div className="space-y-5 text-center flex flex-col items-center">
+            <ThreeDCard 
+              variants={fadeInUp}
+              className="space-y-5 text-center flex flex-col items-center bg-white border border-gray-105 p-6 rounded-3xl shadow-3xs cursor-pointer"
+            >
               <div className="relative">
                 <div className="w-16 h-16 rounded-3xl bg-gray-100/70 border border-gray-150 flex items-center justify-center text-[#ff6b00]">
                   <Wand2 className="w-6 h-6 stroke-[1.8]" />
@@ -559,14 +737,17 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                 <h3 className="font-display font-extrabold text-[#0D0D0D] text-base sm:text-lg tracking-tight">
                   AI Crafts Creator Assets
                 </h3>
-                <p className="text-xs text-gray-550 leading-relaxed font-sans">
+                <p className="text-xs text-gray-555 leading-relaxed font-sans">
                   Let our advanced Google Gemini AI write highly engaging titles, scroll-stopping hooks, high-retention video scripts, and tags.
                 </p>
               </div>
-            </div>
+            </ThreeDCard>
 
             {/* Step 3 */}
-            <div className="space-y-5 text-center flex flex-col items-center">
+            <ThreeDCard 
+              variants={fadeInUp}
+              className="space-y-5 text-center flex flex-col items-center bg-white border border-gray-105 p-6 rounded-3xl shadow-3xs cursor-pointer"
+            >
               <div className="relative">
                 <div className="w-16 h-16 rounded-3xl bg-[#0D0D0D] flex items-center justify-center text-white shadow-md">
                   <Calendar className="w-6 h-6 stroke-[1.8] text-[#ff6b00]" />
@@ -579,31 +760,46 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                 <h3 className="font-display font-extrabold text-[#0D0D0D] text-base sm:text-lg tracking-tight">
                   Plan & Schedule
                 </h3>
-                <p className="text-xs text-gray-550 leading-relaxed font-sans">
+                <p className="text-xs text-gray-555 leading-relaxed font-sans">
                   Organize your creations on the interactive Content Calendar, save your favorite concepts, and deploy them directly to your production queue.
                 </p>
               </div>
-            </div>
+            </ThreeDCard>
 
           </div>
 
         </div>
-      </section>
+      </motion.section>
 
       {/* 5. INTERACTIVE TERMINAL PREVIEW SECTION */}
-      <section className="bg-gray-100/40 border-t border-b border-gray-160/60 py-20 px-4 sm:px-6 lg:px-8 select-none" id="preview-section">
+      <motion.section 
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={staggerContainer}
+        className="bg-gray-100/40 border-t border-b border-gray-160/60 py-20 px-4 sm:px-6 lg:px-8 select-none" 
+        id="preview-section"
+      >
         <div className="max-w-[1280px] mx-auto space-y-12">
           
-          <div className="text-center space-y-3">
+          <motion.div 
+            variants={fadeInUp}
+            className="text-center space-y-3"
+          >
             <h2 className="font-display font-black text-3xl sm:text-5xl text-[#0D0D0D] tracking-tight">
               Ideate. Write. <span className="text-[#ff6b00]">Schedule.</span>
             </h2>
             <p className="text-sm text-gray-500 max-w-xl mx-auto font-sans leading-relaxed">
               Our creator hub keeps your entire workflow synced. Brainstorm clickable hooks, test title variants, generate full scripts, and track your content calendar in one secure workspace.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="max-w-4xl mx-auto bg-white border border-gray-200/80 rounded-3xl shadow-xl overflow-hidden" id="interactive-preview">
+          <motion.div 
+            variants={fadeInScale}
+            whileHover={{ y: -5, scale: 1.008, transition: { type: "spring", stiffness: 250, damping: 20 } }}
+            className="max-w-4xl mx-auto bg-white border border-gray-200/80 rounded-3xl shadow-xl overflow-hidden cursor-pointer" 
+            id="interactive-preview"
+          >
             
             {/* Mock browser status bar */}
             <div className="bg-[#efeded]/70 px-4 py-3 border-b border-gray-105 flex items-center justify-between">
@@ -656,14 +852,15 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
               </div>
 
               {/* Dynamic displays based on tab selection */}
-              <div className="min-h-[180px] animate-fade-in flex flex-col justify-between">
+              <div className="min-h-[180px] flex flex-col justify-between">
                 <AnimatePresence mode="wait">
                   {activeTab === "track" && (
                     <motion.div 
                       key="track"
-                      initial={{ opacity: 0, y: 5 }}
+                      initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
+                      exit={{ opacity: 0, y: -12 }}
+                      transition={{ type: "spring", stiffness: 120, damping: 14 }}
                       className="grid grid-cols-1 sm:grid-cols-3 gap-4"
                     >
                       <div className="bg-gray-50 border border-gray-100 p-4.5 rounded-2xl flex flex-col justify-between">
@@ -689,9 +886,10 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                   {activeTab === "analyze" && (
                     <motion.div 
                       key="analyze"
-                      initial={{ opacity: 0, y: 5 }}
+                      initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
+                      exit={{ opacity: 0, y: -12 }}
+                      transition={{ type: "spring", stiffness: 120, damping: 14 }}
                       className="space-y-4"
                     >
                       <div className="bg-gray-50 border border-gray-100 p-4.5 rounded-2xl space-y-3.5">
@@ -714,9 +912,10 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                   {activeTab === "optimize" && (
                     <motion.div 
                       key="optimize"
-                      initial={{ opacity: 0, y: 5 }}
+                      initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
+                      exit={{ opacity: 0, y: -12 }}
+                      transition={{ type: "spring", stiffness: 120, damping: 14 }}
                       className="bg-gray-50 border border-gray-100 p-5 rounded-2xl text-center space-y-3.5"
                     >
                       <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 mx-auto">
@@ -746,16 +945,26 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
 
             </div>
 
-          </div>
+          </motion.div>
 
         </div>
-      </section>
+      </motion.section>
 
       {/* 6. PLANS BUILT AROUND OUTPUT: PRICING GRID */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 select-none" id="pricing">
+      <motion.section 
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={staggerContainer}
+        className="py-20 px-4 sm:px-6 lg:px-8 select-none" 
+        id="pricing"
+      >
         <div className="max-w-[1280px] mx-auto space-y-16">
           
-          <div className="text-center space-y-3">
+          <motion.div 
+            variants={fadeInUp}
+            className="text-center space-y-3"
+          >
             <h2 className="font-display font-black text-3xl sm:text-5xl text-[#0D0D0D] tracking-tight">
               Pay-as-you-go Space Credits
             </h2>
@@ -765,11 +974,15 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
             <span className="inline-block text-[10px] text-[#ff6b00] font-black uppercase tracking-wider font-mono">
               ★ Standard Refill is the most popular choice for content creators ★
             </span>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4 max-w-6xl mx-auto" id="pricing-matrix">
                {/* Card 1: Starter Refuel */}
-            <div className="bg-white border border-gray-150 hover:border-gray-250 rounded-3xl p-6 sm:p-8 flex flex-col justify-between space-y-8 transition-all hover:scale-99">
+            <motion.div 
+              variants={fadeInUp}
+              whileHover={{ y: -8, scale: 1.015, borderColor: "rgba(255,107,0,0.2)", transition: { type: "spring", stiffness: 300, damping: 20 } }}
+              className="bg-white border border-gray-150 rounded-3xl p-6 sm:p-8 flex flex-col justify-between space-y-8 transition-colors duration-250 cursor-pointer shadow-xs"
+            >
               <div className="space-y-6">
                 <div className="space-y-2">
                   <div className="flex items-center gap-1 text-[#ff6b00]">
@@ -802,10 +1015,14 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
               >
                 Buy Starter Pack
               </button>
-            </div>
+            </motion.div>
 
             {/* Card 2: Standard Refill (MOST POPULAR) */}
-            <div className="bg-white border-2 border-[#ff6b00] rounded-3xl p-6 sm:p-8 flex flex-col justify-between space-y-8 relative overflow-hidden transition-all hover:scale-101 shadow-xl">
+            <motion.div 
+              variants={fadeInUp}
+              whileHover={{ y: -10, scale: 1.03, borderColor: "rgba(255,107,0,0.45)", transition: { type: "spring", stiffness: 300, damping: 20 } }}
+              className="bg-white border-2 border-[#ff6b00] rounded-3xl p-6 sm:p-8 flex flex-col justify-between space-y-8 relative overflow-hidden cursor-pointer shadow-xl"
+            >
               
               {/* Highlight Banner */}
               <div className="absolute top-0 right-0 bg-[#ff6b00] text-white text-[9px] font-black tracking-widest uppercase py-1.5 px-6 leading-none transform rotate-45 translate-x-8 translate-y-4">
@@ -818,7 +1035,7 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                     <Sparkles className="w-4.5 h-4.5 stroke-[2] text-[#ff6b00]" />
                     <span className="font-display font-black text-sm uppercase tracking-wider">Standard Refill</span>
                   </div>
-                  <p className="text-xs text-gray-500 leading-relaxed font-sans">
+                  <p className="text-xs text-gray-550 leading-relaxed font-sans">
                     Popular choice for active video creators.
                   </p>
                 </div>
@@ -833,7 +1050,7 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                   <span className="font-sans font-bold text-[10px] uppercase tracking-wider text-[#ff6b00]">Space Credits Included</span>
                 </div>
 
-                <p className="text-xs text-gray-500 font-sans leading-relaxed text-center">
+                <p className="text-xs text-gray-550 font-sans leading-relaxed text-center">
                   Full access to high-retention templates, smart generators, and premium styles.
                 </p>
               </div>
@@ -844,17 +1061,21 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
               >
                 Buy Standard Pack
               </button>
-            </div>
+            </motion.div>
 
             {/* Card 3: Enterprise Boost */}
-            <div className="bg-white border border-gray-150 hover:border-gray-250 rounded-3xl p-6 sm:p-8 flex flex-col justify-between space-y-8 transition-all hover:scale-99">
+            <motion.div 
+              variants={fadeInUp}
+              whileHover={{ y: -8, scale: 1.015, borderColor: "rgba(255,107,0,0.2)", transition: { type: "spring", stiffness: 300, damping: 20 } }}
+              className="bg-white border border-gray-150 rounded-3xl p-6 sm:p-8 flex flex-col justify-between space-y-8 transition-colors duration-250 cursor-pointer shadow-xs"
+            >
               <div className="space-y-6">
                 <div className="space-y-2">
                   <div className="flex items-center gap-1 text-gray-700">
                     <Layers className="w-4 h-4 stroke-[2]" />
                     <span className="font-display font-black text-sm uppercase tracking-wider">Enterprise Boost</span>
                   </div>
-                  <p className="text-xs text-gray-500 leading-relaxed font-sans">
+                  <p className="text-xs text-gray-555 leading-relaxed font-sans">
                     For high-volume channels and teams.
                   </p>
                 </div>
@@ -869,7 +1090,7 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                   <span className="font-sans font-bold text-[10px] uppercase tracking-wider text-gray-500">Space Credits Included</span>
                 </div>
 
-                <p className="text-xs text-gray-500 font-sans leading-relaxed text-center">
+                <p className="text-xs text-gray-550 font-sans leading-relaxed text-center">
                   Maximized allocation to guarantee zero generation locks during critical periods.
                 </p>
               </div>
@@ -880,7 +1101,7 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
               >
                 Buy Enterprise Pack
               </button>
-            </div>
+            </motion.div>
           </div>
 
           <p className="text-[10px] text-center text-gray-400 font-sans tracking-wide max-w-lg mx-auto leading-relaxed">
@@ -888,20 +1109,34 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
           </p>
 
         </div>
-      </section>
+      </motion.section>
 
       {/* 7. FREQUENTLY ASKED QUESTIONS SECTION (ACCORDION) */}
-      <section className="bg-white border-t border-b border-[#efeded]/70 py-20 px-4 sm:px-6 lg:px-8 select-none" id="faq">
+      <motion.section 
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={staggerContainer}
+        className="bg-white border-t border-b border-[#efeded]/70 py-20 px-4 sm:px-6 lg:px-8 select-none" 
+        id="faq"
+      >
         <div className="max-w-[760px] mx-auto space-y-12">
           
-          <div className="text-center space-y-3">
+          <motion.div 
+            variants={fadeInUp}
+            className="text-center space-y-3"
+          >
             <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 font-display">Questions</span>
             <h2 className="font-display font-black text-3xl sm:text-5xl text-[#0D0D0D] tracking-tight">
               Frequently Asked Questions
             </h2>
-          </div>
+          </motion.div>
 
-          <div className="divide-y divide-gray-150 border-t border-b border-gray-150" id="accordion-container">
+          <motion.div 
+            variants={fadeInUp}
+            className="divide-y divide-gray-150 border-t border-b border-gray-150" 
+            id="accordion-container"
+          >
             {faqs.map((faq, idx) => {
               const isOpen = openFaq === idx;
               return (
@@ -911,42 +1146,77 @@ export default function LandingPageView({ onGetStarted }: LandingPageViewProps) 
                     className="w-full flex items-center justify-between py-2 text-left font-display font-extrabold text-sm sm:text-base text-[#0d0d0d] hover:text-[#ff6b00] transition-colors cursor-pointer"
                   >
                     <span>{faq.q}</span>
-                    {isOpen ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+                    <motion.div
+                      animate={{ rotate: isOpen ? 180 : 0 }}
+                      transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                    >
+                      <ChevronDown className="w-5 h-5 text-gray-400" />
+                    </motion.div>
                   </button>
                   
-                  {/* Smooth collapse view */}
-                  {isOpen && (
-                    <div className="pt-2 pb-3 text-xs sm:text-sm text-gray-500 leading-relaxed font-sans max-w-2xl animate-fade-in">
-                      {faq.a}
-                    </div>
-                  )}
+                  {/* Custom smooth spring-based height collapse */}
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        key="content"
+                        initial="collapsed"
+                        animate="open"
+                        exit="collapsed"
+                        variants={{
+                          open: { opacity: 1, height: "auto", marginTop: "8px" },
+                          collapsed: { opacity: 0, height: 0, marginTop: "0px" }
+                        }}
+                        transition={{ duration: 0.28, ease: [0.04, 0.62, 0.23, 0.98] }}
+                        className="overflow-hidden text-xs sm:text-sm text-gray-500 leading-relaxed font-sans max-w-2xl"
+                      >
+                        <div className="pb-3">
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               );
             })}
-          </div>
+          </motion.div>
 
         </div>
-      </section>
+      </motion.section>
 
       {/* 8. INSTANT GET STARTED FINAL CTA */}
-      <section className="bg-[#FAF9F9] py-24 px-4 sm:px-6 lg:px-8 text-center select-none" id="bottom-cta-banner">
+      <motion.section 
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={staggerContainer}
+        className="bg-[#FAF9F9] py-24 px-4 sm:px-6 lg:px-8 text-center select-none" 
+        id="bottom-cta-banner"
+      >
         <div className="max-w-[1280px] mx-auto space-y-6">
-          <h2 className="font-display font-black text-3xl sm:text-5xl text-[#0d0d0d] tracking-tight leading-tight max-w-xl mx-auto">
-            Ready to Create Your First <span className="text-[#ff6b00]">Viral Short?</span>
-          </h2>
-          <p className="text-xs sm:text-sm text-gray-500 max-w-md mx-auto leading-relaxed font-sans pb-2">
-            Join thousands of creators who are already using Yourt AI to grow their channels.
-          </p>
-          <button
-            onClick={() => onGetStarted("signup")}
-            className="inline-flex items-center justify-center gap-2 bg-[#ff6b00] hover:bg-[#e05e00] hover:scale-101 text-white font-bold text-sm px-8 py-4.5 rounded-2xl transition-all shadow-md cursor-pointer"
-            id="bottom-primary-cta"
+          <motion.h2 
+            variants={fadeInUp}
+            className="font-display font-black text-3xl sm:text-5xl text-[#0d0d0d] tracking-tight leading-tight max-w-xl mx-auto"
           >
-            Get Started Free
-            <ArrowRight className="w-4.5 h-4.5" />
-          </button>
+            Ready to Create Your First <span className="text-[#ff6b00]">Viral Short?</span>
+          </motion.h2>
+          <motion.p 
+            variants={fadeInUp}
+            className="text-xs sm:text-sm text-gray-500 max-w-md mx-auto leading-relaxed font-sans pb-2"
+          >
+            Join thousands of creators who are already using Yourt AI to grow their channels.
+          </motion.p>
+          <motion.div variants={fadeInUp}>
+            <button
+              onClick={() => onGetStarted("signup")}
+              className="inline-flex items-center justify-center gap-2 bg-[#ff6b00] hover:bg-[#e05e00] hover:scale-101 text-white font-bold text-sm px-8 py-4.5 rounded-2xl transition-all shadow-md cursor-pointer"
+              id="bottom-primary-cta"
+            >
+              Get Started Free
+              <ArrowRight className="w-4.5 h-4.5" />
+            </button>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* 9. DETAILED BOTTOM FOOTER WITH NEWSLETTER SECTION */}
       <footer className="border-t border-[#efeded] bg-white pt-16 pb-12 px-4 sm:px-8" id="footer-landing">

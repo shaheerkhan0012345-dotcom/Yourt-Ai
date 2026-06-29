@@ -67,11 +67,11 @@ async function generateResilientContent(
   config: any,
   fallbackGenerator: () => any
 ) {
-  // On Vercel, serverless function has a strict 10s execution limit.
-  // We limit retry models and enforce short timeouts to prevent 504 Gateway Timeouts.
   const isVercel = !!process.env.VERCEL;
-  const models = isVercel ? [defaultModel] : [defaultModel, "gemini-3.1-flash-lite"];
-  const timeoutMs = isVercel ? 5000 : 7000; // 5s timeout on Vercel, 7s otherwise
+  // Use a single fast model attempt (defaultModel) to avoid cumulative sequential delay on fail/timeout
+  const models = [defaultModel];
+  // Fast timeout (3.5 seconds) so that users get instant results from the fallback if the API is slow/throttled
+  const timeoutMs = isVercel ? 2500 : 3500;
   let lastError: any = null;
 
   for (const model of models) {
@@ -101,16 +101,11 @@ async function generateResilientContent(
     } catch (err: any) {
       console.warn(`[Gemini API] Failed generation with ${model}:`, err.message || err);
       lastError = err;
-      
-      // If we are on Vercel or have tried all models, don't sleep
-      if (model !== models[models.length - 1]) {
-        await new Promise((resolve) => setTimeout(resolve, 150));
-      }
     }
   }
 
-  // If physical models fail or time out, use the local context-aware mockup generator
-  console.warn("[Gemini API] All physical models are currently experiencing high demand or timed out. Activating resilient high-quality local generator fallback to ensure zero user downtime.");
+  // If physical model fails or times out, use the local context-aware mockup generator immediately
+  console.warn("[Gemini API] Model experiencing high latency or rate limits. Activating high-speed local fallback instantly to ensure zero user waiting.");
   return fallbackGenerator();
 }
 
@@ -1049,11 +1044,25 @@ app.post("/api/ideas/generate", async (req, res) => {
     }
 
     const systemInstruction = `You are a master YouTube content strategist and creative director.
-CRITICAL MANDATE: You MUST generate ideas and content that align 100% strictly with the user's requested niche/topic and target audience.
-NEVER ignore the user's provided niche/topic. For example, if the niche is "food", "cooking", "parenting", "fitness", etc., do NOT generate tech, coding, AI, or software development ideas. Every single generated title, concept, explanation, and visual suggestion must be deeply customized to and about that specific niche.`;
+CRITICAL MANDATE: You MUST classify the requested video niche and target audience into its correct YouTube niche family and apply that specific niche's native psychology, terminology, and content structures:
+- Gaming (Hype, intense challenges, epic visual cues, game-specific hooks).
+- Finance/Business/Investing (High authority, proof, specific numbers, wealth acceleration or savings).
+- Food/Cooking (Sensory descriptions, ASMR/visual elements, mouth-watering ingredients, extreme taste challenges).
+- Beauty/Fashion (Aesthetic focus, product/shade details, satisfying transformations, visual style guides).
+- Fitness/Health (Body transformation, healthy habits, workout routines, scientific or athletic backings).
+- DIY/Crafts (Highly satisfying step-by-step progressions, material list details, before/after reveals).
+- Education/Science/History (Deep curiosity loops, mind-blowing facts, clear structural explanations, historical depth).
+- Tech/AI (Software/hardware names, cutting-edge code, speed of execution, automation tools).
+- Travel/Vlogs (Location visual depth, budget vs luxury contrast, immersive storytelling).
+- Comedy/Entertainment (Relatability, humor beats, timing cues, exaggerated situations).
+- Music/Art (Performance cues, creative workflows, covers/remixes, textures).
+- Parenting/Family (Relatable household situations, life hacks, safety, emotion).
+- News/Commentary (Urgency, drama, public opinions, hot takes, controversy handling).
+
+NEVER ignore the user's provided niche/topic. NEVER default to tech, AI, software, or coding unless the user's niche is explicitly about them. For example, if the niche is "Sourdough Bread" (Food/Cooking), do NOT generate ideas like 'Coding a bread app in 24 hours'. Instead, generate ideas like 'I Baked the Hardest Sourdough Recipe in the World in 24 Hours' or 'How to Master Perfect Crumb Sourdough in 10 Minutes a Day'. All generated titles, concepts, explanations, and visual suggestions must be 100% customized to and about the specific requested niche.`;
     const userPrompt = `Generate exactly 4 viral, high-potential YouTube video ideas strictly about the "${niche || "Tech & AI"}" niche.
 Target Audience: "${targetAudience || "Tech enthusiasts or general creators"}"
-Every single idea must be directly relevant to "${niche || "Tech & AI"}". Do not use general tech, coding, or software templates unless the niche is explicitly about them.
+Every single idea must be deeply tailored to "${niche || "Tech & AI"}" with niche-specific psychology. Do not use generic tech or software templates unless the niche is explicitly about tech/AI/coding.
 Provide high-CTR concepts in a structured JSON schema.`;
 
     const parsed = await generateResilientContent(
@@ -1099,11 +1108,25 @@ app.post("/api/hooks/generate", async (req, res) => {
       return res.json(getFallbackHooks(topic));
     }
 
-    const systemInstruction = `You are a viral YouTube copywriting expert. 
-CRITICAL MANDATE: You MUST write hooks that are 100% strictly about the user's requested topic. 
-NEVER ignore the user's topic or generate general tech/coding content if the topic is something else (e.g., "food", "cooking", "fitness", "parenting"). Every script, hook, and rationale must focus entirely and deeply on the specified topic.`;
+    const systemInstruction = `You are a viral YouTube copywriting expert.
+CRITICAL MANDATE: You MUST classify the requested video topic/niche into its correct YouTube family and generate hooks using that specific niche's best psychological cues and retention dynamics:
+- Gaming (High excitement, energetic verbs, immediate high stakes).
+- Finance/Business/Investing (Skeptical or highly lucrative framing, metrics, and secret revelations).
+- Food/Cooking (Vivid sensory details, ASMR hints, taste/flavor or recipe transformations).
+- Beauty/Fashion (Aesthetic vocabulary, visual flaw/glow-up cues, shocking style rules).
+- Fitness/Health (Biological triggers, immediate habit alterations, energy/stamina references).
+- DIY/Crafts (Before/after tension, material transformation secrets, satisfying pacing).
+- Education/Science/History (Mind-blowing curiosity gap questions, historic consequences, hidden secrets).
+- Tech/AI (Software automation shortcuts, programming tricks, hardware specs, speed).
+- Travel/Vlogs (First-person immersive visuals, hidden locations, cost contrasts, local mysteries).
+- Comedy/Entertainment (High relatability, awkward or exaggerated situations, direct irony).
+- Music/Art (Sonic or visual layers, process secrets, emotional resonance hooks).
+- Parenting/Family (Sanity-saving hacks, household relatable chaos, emotional family choices).
+- News/Commentary (Breaking urgency, direct confrontation, public drama).
+
+NEVER ignore the user's requested topic. NEVER default to tech, coding, or app-building templates for other topics. For example, if the topic is "How to cook a perfect steak" (Food), do NOT write 'This single line of code destroyed my steak'. Write hooks strictly about steak textures, restaurant secrets, temperature mistakes, and kitchen chemistry.`;
     const userPrompt = `Generate 4 distinct attention-grabbing hooks strictly about the topic: "${topic || "How to build an audience organically"}".
-Do NOT use generic tech, app-building, or software-engineering templates/cues unless the topic is explicitly about them. Every single hook must be deeply contextualized in "${topic}".
+Do NOT use generic tech, app-building, or software-engineering templates/cues unless the topic is explicitly about them. Every single hook must be deeply and authentically contextualized in "${topic}".
 Provide them in JSON format categorized by style: Curiosity Gap, High-Stakes Threat, Immediate Reward, and Counter-Intuitive Truth.`;
 
     const parsed = await generateResilientContent(
@@ -1147,12 +1170,26 @@ app.post("/api/scripts/generate", async (req, res) => {
       return res.json(getFallbackScript(title, duration));
     }
 
-    const systemInstruction = `You are a master YouTube scriptwriter.
-CRITICAL MANDATE: You MUST write the script outline and beats 100% strictly about the user's requested video title.
-NEVER ignore the title or default to generic tech, coding, or software development topics if the title is about something else (e.g. food, cooking, health). Every hook, scene, visual cue, and talking point must be fully customized and relevant to "${title}".`;
+    const systemInstruction = `You are an elite YouTube scriptwriter and narrative designer.
+CRITICAL MANDATE: You MUST classify the requested video title into its correct YouTube niche and generate a detailed video skeleton script using that specific niche's native style, speaker tone, visual cues, and content flow:
+- Gaming (High-tempo, energetic commentary, visual overlays, game capture references, hyper-focused b-roll).
+- Finance/Business (Highly analytical, statistics, credible case studies, charts/graphs, authoritative speaking tone).
+- Food/Cooking (Sensory close-ups, sizzling audio cues, recipe step counters, kitchen layout, warm host tone).
+- Beauty/Fashion (High lighting aesthetics, product swipe cues, visual transitions, close-ups, mirror vlogging).
+- Fitness/Health (Dynamic workout b-roll, stopwatch tickers, motivational voiceovers, clear biological tips).
+- DIY/Crafts (ASMR tool sounds, timelapse assembly, zoomed-in detail shots, friendly guiding instructions).
+- Education/Science/History (Animated graphs, historical portraits, high suspense narration, conceptual metaphors).
+- Tech/AI (Screen-sharing code, custom terminal runs, software UI walkthroughs, minimalist desktop setups).
+- Travel/Vlogs (Wide drone pans, direct-to-lens walking talking points, ambient natural sound levels, map transitions).
+- Comedy/Entertainment (High energy cuts, meme zoom inserts, fast comic timings, expressive performance cues).
+- Music/Art (Studiowide ambient pans, layer-by-layer creation loops, high-quality audio references, textured transitions).
+- Parenting/Family (Candid household moments, time-saving checklists, warm empathetic storytelling).
+- News/Commentary (Screen recordings of posts, quick-cut articles, split screens, urgent direct-address delivery).
+
+NEVER ignore the requested title. NEVER default to tech B-roll, coding, software, or script-running unless explicitly requested. For example, if the title is "How to Bake the Ultimate Chocolate Cake", do NOT add visual cues like 'showing terminal code of a chocolate app'. Instead, use visual cues like 'close-up of melting dark chocolate' and 'ASMR crack of fresh eggs'.`;
     const userPrompt = `Design a comprehensive YouTube narrative skeleton script strictly for the video titled: "${title || "The Truth About Passive Income"}".
 Duration target is "${duration || "8-10 minutes"}".
-Every single block of content (hook, intro, bodyBeats, cta) must strictly and deeply center around the specific title "${title}". Do not use software, coding, or app development B-roll or cues unless explicitly relevant.
+Every single block of content (hook, intro, bodyBeats, cta) must strictly and deeply center around the specific title "${title}". Do not use software, coding, or app development B-roll or cues unless explicitly relevant to the title's true niche.
 Provide output structure in JSON format including Hook, Introduction, Main Body Core Beats (exactly 3 items), and dynamic Call to Action (CTA).`;
 
     const parsed = await generateResilientContent(
@@ -1204,9 +1241,23 @@ app.post("/api/titles/generate", async (req, res) => {
       return res.json(getFallbackTitles(concept));
     }
 
-    const systemInstruction = `You are an elite YouTube CTR specialist.
-CRITICAL MANDATE: You MUST generate clicky titles that are 100% strictly about the user's concept.
-NEVER ignore the concept or default to tech, coding, app-building, or software if the concept is about something else (e.g. food, sports, history). Every generated title option must be highly relevant and specific to "${concept}".`;
+    const systemInstruction = `You are an elite YouTube CTR specialist and headline copywriter.
+CRITICAL MANDATE: You MUST classify the requested video concept into its correct YouTube niche and generate 6 highly optimized clicky titles using that specific niche's top-performing CTR triggers:
+- Gaming (Hype brackets, extreme challenges, caps lock intensity, versus battles, e.g. "[WORLD RECORD]").
+- Finance/Business (Specific money numbers, direct wealth secrets, percentage proofs, e.g. "I Spent $10,000 to Find Out...").
+- Food/Cooking (Extreme flavor scales, secret cooking rules, versus/ratings, e.g. "The 3-Ingredient Cake That Shocked Pastry Chefs").
+- Beauty/Fashion (Glow-up transformations, worst-to-best ratings, rules to avoid, e.g. "Stop Doing Your Makeup Like This (99% Fail)").
+- Fitness/Health (Before/after day challenges, dynamic science proof, habit optimization, e.g. "I Did 100 Squats a Day for 30 Days (Real Results)").
+- DIY/Crafts (Satisfying speed/ease claims, budget hacks, epic transformations, e.g. "I Renovated a Dumpster for $50").
+- Education/Science/History (Mind-blowing curiosity loops, shocking questions, untold secrets, e.g. "The Lost Event That Rewrote History").
+- Tech/AI (Speed, automation, extreme comparison, software secrets, e.g. "I Automated My Entire Job in 24 Hours").
+- Travel/Vlogs (Budget vs luxury contrast, dangerous or secret spots, cultural shocks, e.g. "I Slept in a $10 Capsule Hotel in Tokyo").
+- Comedy/Entertainment (High relatability, exaggerated warnings, direct humor, e.g. "Do NOT Invite Me to Your Party").
+- Music/Art (Fast skill reviews, satisfying covers, secret process tutorials, e.g. "How to Play Guitar in 5 Minutes (Even If You're Lazy)").
+- Parenting/Family (Sanity trackers, household extreme relatable warnings, emotional updates).
+- News/Commentary (Urgent drama alerts, controversy statements, current public reactions).
+
+NEVER ignore the requested concept. NEVER default to tech, coding, or app-building templates for other concepts. For example, if the concept is "sourdough bread baking", do NOT generate "How I Coded a Sourdough App". Instead generate titles like "I Baked Sourdough Bread For 24 Hours Straight (Mistake!)" or "Why 95% of Beginners Ruin Sourdough Bread".`;
     const userPrompt = `Generate 6 highly optimized clicky YouTube titles strictly for the concept: "${concept || "Coding an app in 24 hours"}".
 Do NOT use tech, programming, or software terminology unless the concept is explicitly about tech. The titles must reflect the true essence of "${concept}".
 Use CTR power structures like numbering, parentheses warnings, absolute extremes, or curiosity gaps. Provide in JSON.`;
@@ -1251,11 +1302,25 @@ app.post("/api/hashtags/generate", async (req, res) => {
       return res.json(getFallbackHashtags(videoDetails));
     }
 
-    const systemInstruction = `You are an expert in YouTube SEO and metadata optimization.
-CRITICAL MANDATE: You MUST generate tags and hashtags that are 100% strictly relevant to the user's keyword or video details.
-NEVER default to tech, coding, AI, or generic software-engineering tags if the keyword is about something else (e.g., food, travel, fashion). All tags must be directly related to the specific video details and niche of "${videoDetails}".`;
+    const systemInstruction = `You are an expert in YouTube SEO, metadata optimization, and search algorithms.
+CRITICAL MANDATE: You MUST classify the requested video keyword into its correct YouTube family and generate 15 highly algorithmic tags and description hashtags tailored to that specific family's high-search-volume patterns:
+- Gaming (Game titles, character names, modes, slang, e.g. #gaming, #letsplay).
+- Finance/Business (Investment terms, asset names, money concepts, e.g. #personalfinance, #investing).
+- Food/Cooking (Dish names, cuisine tags, recipe hacks, sensory labels, e.g. #cooking, #recipe).
+- Beauty/Fashion (Makeup shades, outfit themes, glow-up markers, style terms, e.g. #makeup, #fashion).
+- Fitness/Health (Exercises, nutrition markers, program styles, e.g. #workout, #fitness).
+- DIY/Crafts (Material names, custom crafting styles, assembly, e.g. #diy, #crafts).
+- Education/Science/History (Academic questions, mysteries, topic tags, e.g. #science, #history).
+- Tech/AI (Software, frameworks, programming languages, gadgets, e.g. #tech, #artificialintelligence).
+- Travel/Vlogs (Locations, country names, travel tips, budget styles, e.g. #travel, #vlog).
+- Comedy/Entertainment (Jokes, relatable scenarios, comedy families, e.g. #comedy, #funny).
+- Music/Art (Instruments, genre labels, artist techniques, e.g. #music, #art).
+- Parenting/Family (Family hacks, parenting guides, household hacks, e.g. #parenting, #family).
+- News/Commentary (Current topics, drama events, public reactions, hot news, e.g. #news, #commentary).
+
+NEVER ignore the requested keyword/details. NEVER default to tech, coding, AI, or generic software development tags unless explicitly requested. For example, if the keyword is "Organic Tomato Gardening", do NOT include tags like "reactjs", "vscode", or "artificial intelligence". Only include tags like "tomato gardening", "organic vegetables", "backyard garden", and #gardening.`;
     const userPrompt = `Generate 15 algorithmic YouTube tags and description hashtags strictly for a video on keyword: "${videoDetails || "Artificial Intelligence Explained"}".
-Every single tag and hashtag must be highly relevant and specific to the requested topic "${videoDetails}". Do not include any unrelated tech/coding/AI tags or terms unless specifically requested.
+Every single tag and hashtag must be highly relevant and specific to the requested topic "${videoDetails}" with proper niche classification. Do not include any unrelated tech/coding/AI tags or terms unless specifically requested.
 Organize into high-volume tags, medium-volume tags, and three recommended hashtags. Provide in JSON.`;
 
     const parsed = await generateResilientContent(
@@ -1376,14 +1441,18 @@ Keep your answers structured, using clear Markdown formatting where applicable. 
 
     geminiHistory.push({ role: "user", parts: [{ text: message }] });
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
-      contents: geminiHistory,
-      config: {
-        systemInstruction,
-        temperature: 0.7,
-      }
-    });
+    const response: any = await withTimeout(
+      ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: geminiHistory,
+        config: {
+          systemInstruction,
+          temperature: 0.7,
+        }
+      }),
+      3500,
+      "Chat request timed out"
+    );
 
     if (response && response.text) {
       return res.json({ text: response.text.trim() });
