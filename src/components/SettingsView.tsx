@@ -309,12 +309,23 @@ export default function SettingsView({ userProfile, onUpdateProfile, credits, on
                   <p className="text-xs text-gray-500 font-sans mt-1">Available balance: <strong>{credits} Credits</strong>. Cycles reset on next billing period.</p>
                 </div>
 
-                <div className="flex gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 text-[10px]">
+                <div className="flex gap-3 text-xs font-bold uppercase tracking-wider text-gray-500 text-[10px]">
                   <button 
                     onClick={() => handleSave()}
                     className="hover:text-[#FF6B00] cursor-pointer"
                   >
                     Sync Profile
+                  </button>
+                  <span className="text-gray-250 select-none">•</span>
+                  <button 
+                    onClick={() => {
+                      if (window.confirm("Are you sure you want to reset your credits balance to the standard 250 credits limit?")) {
+                        onAddCredits(250 - credits);
+                      }
+                    }}
+                    className="hover:text-red-500 cursor-pointer text-red-400"
+                  >
+                    Reset to 250
                   </button>
                 </div>
               </div>

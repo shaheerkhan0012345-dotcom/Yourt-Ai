@@ -70,11 +70,13 @@ export default function App() {
   const [savedList, setSavedList] = useState<SavedItem[]>([]);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
   const [userDataLoaded, setUserDataLoaded] = useState(false);
+  const [loadedUid, setLoadedUid] = useState<string | null>(null);
 
   // Sync to local storage for guests - load defaults first if not in localStorage
   useEffect(() => {
     if (!user || user.uid === "public-creator-user-id") {
       setUserDataLoaded(false);
+      setLoadedUid(null);
 
       const rawProfile = localStorage.getItem("yourt_user_profile");
       if (rawProfile) {
@@ -168,6 +170,7 @@ export default function App() {
         ]);
       }
       setUserDataLoaded(true);
+      setLoadedUid("guest");
     }
   }, [user]);
 
@@ -178,6 +181,7 @@ export default function App() {
         return;
       }
       setUserDataLoaded(false);
+      setLoadedUid(null);
       // Immediately reset state values to prevent stale or guest data from displaying/bleeding
       setUserProfile({
         firstName: user.displayName?.split(" ")[0] || "Creative",
@@ -220,6 +224,7 @@ export default function App() {
             setCalendarEvents([]);
           }
           setUserDataLoaded(true);
+          setLoadedUid(user.uid);
         } catch (e: any) {
           const isOffline = e?.message?.includes("offline") || e?.toString()?.includes("offline");
           if (isOffline) {
@@ -228,6 +233,7 @@ export default function App() {
             console.error("Failed to load user doc from Firestore:", e);
           }
           setUserDataLoaded(true);
+          setLoadedUid(user.uid);
         }
       };
       fetchUserData();
@@ -249,27 +255,33 @@ export default function App() {
   // Sync to localstorage or cloud on changes
   useEffect(() => {
     if (user) {
-      if (userDataLoaded) syncCredits(credits);
+      if (loadedUid === user.uid && userDataLoaded) syncCredits(credits);
     } else {
-      localStorage.setItem("yourt_credits", credits.toString());
+      if (loadedUid === "guest" && userDataLoaded) {
+        localStorage.setItem("yourt_credits", credits.toString());
+      }
     }
-  }, [credits, user, userDataLoaded]);
+  }, [credits, user, userDataLoaded, loadedUid]);
 
   useEffect(() => {
     if (user) {
-      if (userDataLoaded) syncSavedList(savedList);
+      if (loadedUid === user.uid && userDataLoaded) syncSavedList(savedList);
     } else {
-      localStorage.setItem("yourt_saved_assets", JSON.stringify(savedList));
+      if (loadedUid === "guest" && userDataLoaded) {
+        localStorage.setItem("yourt_saved_assets", JSON.stringify(savedList));
+      }
     }
-  }, [savedList, user, userDataLoaded]);
+  }, [savedList, user, userDataLoaded, loadedUid]);
 
   useEffect(() => {
     if (user) {
-      if (userDataLoaded) syncCalendarEvents(calendarEvents);
+      if (loadedUid === user.uid && userDataLoaded) syncCalendarEvents(calendarEvents);
     } else {
-      localStorage.setItem("yourt_calendar_events", JSON.stringify(calendarEvents));
+      if (loadedUid === "guest" && userDataLoaded) {
+        localStorage.setItem("yourt_calendar_events", JSON.stringify(calendarEvents));
+      }
     }
-  }, [calendarEvents, user, userDataLoaded]);
+  }, [calendarEvents, user, userDataLoaded, loadedUid]);
 
   // Synchronize local userProfile when firebase auth profile loads/updates
   useEffect(() => {
@@ -281,9 +293,11 @@ export default function App() {
   // For guests, persist local edits to localStorage
   useEffect(() => {
     if (!user || user.uid === "public-creator-user-id") {
-      localStorage.setItem("yourt_user_profile", JSON.stringify(userProfile));
+      if (loadedUid === "guest") {
+        localStorage.setItem("yourt_user_profile", JSON.stringify(userProfile));
+      }
     }
-  }, [userProfile, user]);
+  }, [userProfile, user, loadedUid]);
 
   const handleUpdateProfile = (newProfile: UserProfile) => {
     setUserProfile(newProfile);

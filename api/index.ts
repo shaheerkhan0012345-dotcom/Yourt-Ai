@@ -70,7 +70,7 @@ async function generateResilientContent(
   // On Vercel, serverless function has a strict 10s execution limit.
   // We limit retry models and enforce short timeouts to prevent 504 Gateway Timeouts.
   const isVercel = !!process.env.VERCEL;
-  const models = isVercel ? [defaultModel] : ["gemini-3.1-flash-lite", defaultModel];
+  const models = isVercel ? [defaultModel] : [defaultModel, "gemini-3.1-flash-lite"];
   const timeoutMs = isVercel ? 5000 : 7000; // 5s timeout on Vercel, 7s otherwise
   let lastError: any = null;
 
@@ -423,37 +423,60 @@ function getFallbackCTREstimation(title: string, thumbnailStyle: string, targetC
 function getFallbackIdeas(niche: string, targetAudience: string) {
   const cn = niche || "Tech & AI";
   const ta = targetAudience || "Tech enthusiasts or general creators";
+  
+  const isTech = /code|app|software|tech|ai|program|web/i.test(cn);
+  
+  const idea1Title = isTech 
+    ? "I Coded A Full App in 24 Hours Using Only Free Tools" 
+    : `I Tried the Hardest "${cn}" Challenge for 24 Hours`;
+  const idea1Desc = isTech 
+    ? "A fast-paced journey documenting the extreme highs and lows of building a standalone product in a single day under intense time constraints." 
+    : `A fast-paced, high-effort experiment testing the absolute limits of "${cn}" under extreme constraints and documenting the results.`;
+  const idea1Thumb = isTech 
+    ? "A split screen showing a massive physical timer at 23:59 and a detailed system dashboard indicating successful build completion." 
+    : `A split screen showing a large physical countdown clock and a premium, eye-catching visual representing "${cn}".`;
+
+  const idea4Title = isTech 
+    ? "How to Automate 10 Hours of Weekly Work with Simple Scripts" 
+    : `How to Master "${cn}" in Only 10 Minutes a Day`;
+  const idea4Desc = isTech 
+    ? "A practical step-by-step masterclass demonstrating 3 automation flows anyone can configure in under 15 minutes." 
+    : `A practical, step-by-step breakdown demonstrating core "${cn}" habits, configurations, and secrets for rapid improvement.`;
+  const idea4Thumb = isTech 
+    ? "A clean minimalist bento layout comparing 'Manual Work: 10 Hours' versus 'Automated Flow: 1 Minute'." 
+    : `A clean minimalist bento layout comparing 'Before' versus 'Mastered "${cn}"' with a highly satisfying visual workflow.`;
+
   return [
     {
       id: "fallback-1",
-      title: `I Coded A Full App in 24 Hours Using Only Free tools`,
-      conceptDescription: `A fast-paced journey documenting the extreme highs and lows of building a standalone product in a single day under intense time constraints.`,
-      whyItWillWork: `Leverages the popular high-effort challenge trope and taps into curiosity about exactly what can be achieved solo under high constraints.`,
-      thumbnailSuggestion: `A split screen showing a massive physical timer at 23:59 and a detailed system dashboard indicating successful build completion.`,
+      title: idea1Title,
+      conceptDescription: idea1Desc,
+      whyItWillWork: "Leverages the popular high-effort challenge trope and taps into curiosity about exactly what can be achieved solo under high constraints.",
+      thumbnailSuggestion: idea1Thumb,
       potentialMetric: "Insane"
     },
     {
       id: "fallback-2",
       title: `The Truth About "${cn}" No One Wants to Hear`,
-      conceptDescription: `Debunking 3 massive myths that hold back 95% of people in the ${cn} space, sharing actionable advice for real growth.`,
-      whyItWillWork: `Contrarian style creates a direct cognitive itch. It challenges existing preconceptions, forcing the viewer to watch to see if they're making mistakes.`,
-      thumbnailSuggestion: `High-contrast, dark background with the text '95% FAIL' on a giant warning sign next to a minimalist, premium silhouette.`,
+      conceptDescription: `Debunking 3 massive myths that hold back 95% of people in the "${cn}" space, sharing actionable advice for real growth.`,
+      whyItWillWork: "Contrarian style creates a direct cognitive itch. It challenges existing preconceptions, forcing the viewer to watch to see if they're making mistakes.",
+      thumbnailSuggestion: `High-contrast, dark background with the text '95% FAIL' on a giant warning sign next to a minimalist, premium silhouette representing "${cn}".`,
       potentialMetric: "Very High"
     },
     {
       id: "fallback-3",
-      title: `Why Most Beginners Quit ${cn} and How to Pivot`,
-      conceptDescription: `An empathetic, highly analytical breakdown of common friction points for ${ta} and practical roadmap to overcome them easily.`,
-      whyItWillWork: `Combines strong pain-point relatability with a concrete, rewarding solution layout.`,
-      thumbnailSuggestion: `An abstract graphic showcasing a red 'Obstacle' path splitting into a clear, bright neon green 'Growth' curve path.`,
+      title: `Why Most Beginners Quit "${cn}" (and How to Pivot)`,
+      conceptDescription: `An empathetic, highly analytical breakdown of common friction points for "${ta}" and practical roadmap to overcome them easily.`,
+      whyItWillWork: "Combines strong pain-point relatability with a concrete, rewarding solution layout.",
+      thumbnailSuggestion: "An abstract graphic showcasing a red 'Obstacle' path splitting into a clear, bright neon green 'Growth' curve path.",
       potentialMetric: "Exceptional"
     },
     {
       id: "fallback-4",
-      title: `How to Automate 10 Hours of Weekly Work with Simple Scripts`,
-      conceptDescription: `A practical step-by-step masterclass demonstrating 3 automation flows anyone can configure in under 15 minutes.`,
-      whyItWillWork: `The core value proposition is incredibly strong: high temporal rescue (saving 10 hours) for very low initial friction.`,
-      thumbnailSuggestion: `A clean minimalist bento layout comparing 'Manual Work: 10 Hours' versus 'Automated Flow: 1 Minute'.`,
+      title: idea4Title,
+      conceptDescription: idea4Desc,
+      whyItWillWork: `The core value proposition is incredibly strong: high performance and skill gains in "${cn}" for very low initial daily friction.`,
+      thumbnailSuggestion: idea4Thumb,
       potentialMetric: "Viral potential"
     }
   ];
@@ -1025,9 +1048,12 @@ app.post("/api/ideas/generate", async (req, res) => {
       return res.json(getFallbackIdeas(niche, targetAudience));
     }
 
-    const systemInstruction = "You are a master YouTube content strategist and creative director.";
-    const userPrompt = `Generate exactly 4 viral, high-potential YouTube video ideas in the "${niche || "Tech & AI"}" niche.
+    const systemInstruction = `You are a master YouTube content strategist and creative director.
+CRITICAL MANDATE: You MUST generate ideas and content that align 100% strictly with the user's requested niche/topic and target audience.
+NEVER ignore the user's provided niche/topic. For example, if the niche is "food", "cooking", "parenting", "fitness", etc., do NOT generate tech, coding, AI, or software development ideas. Every single generated title, concept, explanation, and visual suggestion must be deeply customized to and about that specific niche.`;
+    const userPrompt = `Generate exactly 4 viral, high-potential YouTube video ideas strictly about the "${niche || "Tech & AI"}" niche.
 Target Audience: "${targetAudience || "Tech enthusiasts or general creators"}"
+Every single idea must be directly relevant to "${niche || "Tech & AI"}". Do not use general tech, coding, or software templates unless the niche is explicitly about them.
 Provide high-CTR concepts in a structured JSON schema.`;
 
     const parsed = await generateResilientContent(
@@ -1073,12 +1099,19 @@ app.post("/api/hooks/generate", async (req, res) => {
       return res.json(getFallbackHooks(topic));
     }
 
+    const systemInstruction = `You are a viral YouTube copywriting expert. 
+CRITICAL MANDATE: You MUST write hooks that are 100% strictly about the user's requested topic. 
+NEVER ignore the user's topic or generate general tech/coding content if the topic is something else (e.g., "food", "cooking", "fitness", "parenting"). Every script, hook, and rationale must focus entirely and deeply on the specified topic.`;
+    const userPrompt = `Generate 4 distinct attention-grabbing hooks strictly about the topic: "${topic || "How to build an audience organically"}".
+Do NOT use generic tech, app-building, or software-engineering templates/cues unless the topic is explicitly about them. Every single hook must be deeply contextualized in "${topic}".
+Provide them in JSON format categorized by style: Curiosity Gap, High-Stakes Threat, Immediate Reward, and Counter-Intuitive Truth.`;
+
     const parsed = await generateResilientContent(
       ai,
       "gemini-3.5-flash",
-      `Generate 4 distinct attention-grabbing hooks for a YouTube video about: "${topic || "How to build an audience organically"}".
-Provide them in JSON format categorized by style: Curiosity Gap, High-Stakes Threat, Immediate Reward, and Counter-Intuitive Truth.`,
+      userPrompt,
       {
+        systemInstruction,
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.ARRAY,
@@ -1114,13 +1147,20 @@ app.post("/api/scripts/generate", async (req, res) => {
       return res.json(getFallbackScript(title, duration));
     }
 
+    const systemInstruction = `You are a master YouTube scriptwriter.
+CRITICAL MANDATE: You MUST write the script outline and beats 100% strictly about the user's requested video title.
+NEVER ignore the title or default to generic tech, coding, or software development topics if the title is about something else (e.g. food, cooking, health). Every hook, scene, visual cue, and talking point must be fully customized and relevant to "${title}".`;
+    const userPrompt = `Design a comprehensive YouTube narrative skeleton script strictly for the video titled: "${title || "The Truth About Passive Income"}".
+Duration target is "${duration || "8-10 minutes"}".
+Every single block of content (hook, intro, bodyBeats, cta) must strictly and deeply center around the specific title "${title}". Do not use software, coding, or app development B-roll or cues unless explicitly relevant.
+Provide output structure in JSON format including Hook, Introduction, Main Body Core Beats (exactly 3 items), and dynamic Call to Action (CTA).`;
+
     const parsed = await generateResilientContent(
       ai,
       "gemini-3.5-flash",
-      `Design a comprehensive YouTube narrative skeleton script for the video titled: "${title || "The Truth About Passive Income"}".
-Duration target is "${duration || "8-10 minutes"}".
-Provide output structure in JSON format including Hook, Introduction, Main Body Core Beats (exactly 3 items), and dynamic Call to Action (CTA).`,
+      userPrompt,
       {
+        systemInstruction,
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -1164,12 +1204,19 @@ app.post("/api/titles/generate", async (req, res) => {
       return res.json(getFallbackTitles(concept));
     }
 
+    const systemInstruction = `You are an elite YouTube CTR specialist.
+CRITICAL MANDATE: You MUST generate clicky titles that are 100% strictly about the user's concept.
+NEVER ignore the concept or default to tech, coding, app-building, or software if the concept is about something else (e.g. food, sports, history). Every generated title option must be highly relevant and specific to "${concept}".`;
+    const userPrompt = `Generate 6 highly optimized clicky YouTube titles strictly for the concept: "${concept || "Coding an app in 24 hours"}".
+Do NOT use tech, programming, or software terminology unless the concept is explicitly about tech. The titles must reflect the true essence of "${concept}".
+Use CTR power structures like numbering, parentheses warnings, absolute extremes, or curiosity gaps. Provide in JSON.`;
+
     const parsed = await generateResilientContent(
       ai,
       "gemini-3.5-flash",
-      `Generate 6 highly optimized clicky YouTube titles for the concept: "${concept || "Coding an app in 24 hours"}".
-Use CTR power structures like numbering, parentheses warnings (e.g. "[WATCH THIS]"), absolute extremes, or curiosity gaps. Provide in JSON.`,
+      userPrompt,
       {
+        systemInstruction,
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.ARRAY,
@@ -1204,12 +1251,19 @@ app.post("/api/hashtags/generate", async (req, res) => {
       return res.json(getFallbackHashtags(videoDetails));
     }
 
+    const systemInstruction = `You are an expert in YouTube SEO and metadata optimization.
+CRITICAL MANDATE: You MUST generate tags and hashtags that are 100% strictly relevant to the user's keyword or video details.
+NEVER default to tech, coding, AI, or generic software-engineering tags if the keyword is about something else (e.g., food, travel, fashion). All tags must be directly related to the specific video details and niche of "${videoDetails}".`;
+    const userPrompt = `Generate 15 algorithmic YouTube tags and description hashtags strictly for a video on keyword: "${videoDetails || "Artificial Intelligence Explained"}".
+Every single tag and hashtag must be highly relevant and specific to the requested topic "${videoDetails}". Do not include any unrelated tech/coding/AI tags or terms unless specifically requested.
+Organize into high-volume tags, medium-volume tags, and three recommended hashtags. Provide in JSON.`;
+
     const parsed = await generateResilientContent(
       ai,
       "gemini-3.5-flash",
-      `Generate 15 algorithmic YouTube tags and description hashtags for a video on keyword: "${videoDetails || "Artificial Intelligence Explained"}".
-Organize into high-volume tags, medium-volume tags, and three recommended hashtags. Provide in JSON.`,
+      userPrompt,
       {
+        systemInstruction,
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
