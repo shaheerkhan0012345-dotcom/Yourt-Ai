@@ -6,7 +6,7 @@ import {
   getFallbackHooks, 
   getFallbackScript, 
   getFallbackTitles 
-} from "./fallbackData";
+} from "./fallbackData.js";
 
 const app = express();
 
@@ -30,6 +30,21 @@ const getGeminiClient = () => {
     },
   });
 };
+
+// UTILITY: Call Gemini API with automatic fallback to gemini-2.5-flash if gemini-3.5-flash fails
+async function generateWithFallback(client: any, options: any) {
+  try {
+    return await client.models.generateContent(options);
+  } catch (err: any) {
+    console.warn(`[Gemini API Warning] Primary model ${options.model} failed:`, err.message || err);
+    if (options.model === "gemini-3.5-flash") {
+      console.log("[Gemini API] Retrying with stable model: gemini-2.5-flash...");
+      const fallbackOptions = { ...options, model: "gemini-2.5-flash" };
+      return await client.models.generateContent(fallbackOptions);
+    }
+    throw err;
+  }
+}
 
 // UTILITY: Resilient prompt generator focusing on YouTube strategy and niche depth
 function buildSystemPrompt(niche: string, targetAudience: string = "general creators") {
@@ -64,22 +79,22 @@ app.post("/api/ideas/generate", async (req, res) => {
     return res.status(400).json({ error: "Niche is required." });
   }
 
-  const client = getGeminiClient();
-  const category = getNicheCategory(niche);
-
-  if (!client) {
-    console.log(`[Ideas API] No key found. Serving high-fidelity fallback for niche: "${niche}" (${category})`);
-    return res.json(getFallbackIdeas(niche, targetAudience));
-  }
-
   try {
+    const client = getGeminiClient();
+    const category = getNicheCategory(niche);
+
+    if (!client) {
+      console.log(`[Ideas API] No key found. Serving high-fidelity fallback for niche: "${niche}" (${category})`);
+      return res.json(getFallbackIdeas(niche, targetAudience));
+    }
+
     const prompt = `Formulate exactly 4 highly-differentiated YouTube content ideas tailored precisely to the "${niche}" niche. 
 Target Audience: ${targetAudience || "general enthusiasts"}
 Recommended Temperature setting: 0.75 for maximum creative but grounded outputs.
 
 Provide output in JSON matching the exact Schema provided. No markdown wrapping.`;
 
-    const response = await client.models.generateContent({
+    const response = await generateWithFallback(client, {
       model: "gemini-3.5-flash",
       contents: prompt,
       config: {
@@ -110,8 +125,14 @@ Provide output in JSON matching the exact Schema provided. No markdown wrapping.
     }
     throw new Error("Empty response from AI engine.");
   } catch (err: any) {
-    console.error("[Ideas Generation Error] falling back to local database:", err.message);
-    return res.json(getFallbackIdeas(niche, targetAudience));
+    console.error("[Ideas Generation Error] falling back to local database:", err.message || err);
+    try {
+      if (!res.headersSent) {
+        return res.json(getFallbackIdeas(niche, targetAudience));
+      }
+    } catch (fallbackErr) {
+      console.error("Critical fallback failure in ideas API:", fallbackErr);
+    }
   }
 });
 
@@ -122,15 +143,15 @@ app.post("/api/hooks/generate", async (req, res) => {
     return res.status(400).json({ error: "Topic/Title is required." });
   }
 
-  const client = getGeminiClient();
-  const category = getNicheCategory(topic);
-
-  if (!client) {
-    console.log(`[Hooks API] No key found. Serving high-fidelity fallback for topic: "${topic}" (${category})`);
-    return res.json(getFallbackHooks(topic));
-  }
-
   try {
+    const client = getGeminiClient();
+    const category = getNicheCategory(topic);
+
+    if (!client) {
+      console.log(`[Hooks API] No key found. Serving high-fidelity fallback for topic: "${topic}" (${category})`);
+      return res.json(getFallbackHooks(topic));
+    }
+
     const prompt = `Analyze this video topic: "${topic}".
 Generate exactly 4 extremely clicky, high-retention video hook variations. Each variation must serve a different psychological trigger:
 1. Curiosity Gap (reveal hidden value)
@@ -141,7 +162,7 @@ Generate exactly 4 extremely clicky, high-retention video hook variations. Each 
 Temperature: 0.8 for strong linguistic persuasion.
 Provide output in JSON matching the response schema.`;
 
-    const response = await client.models.generateContent({
+    const response = await generateWithFallback(client, {
       model: "gemini-3.5-flash",
       contents: prompt,
       config: {
@@ -170,8 +191,14 @@ Provide output in JSON matching the response schema.`;
     }
     throw new Error("No text response from GenAI engine.");
   } catch (err: any) {
-    console.error("[Hooks Generation Error] falling back to local database:", err.message);
-    return res.json(getFallbackHooks(topic));
+    console.error("[Hooks Generation Error] falling back to local database:", err.message || err);
+    try {
+      if (!res.headersSent) {
+        return res.json(getFallbackHooks(topic));
+      }
+    } catch (fallbackErr) {
+      console.error("Critical fallback failure in hooks API:", fallbackErr);
+    }
   }
 });
 
@@ -182,15 +209,15 @@ app.post("/api/titles/generate", async (req, res) => {
     return res.status(400).json({ error: "Concept details are required." });
   }
 
-  const client = getGeminiClient();
-  const category = getNicheCategory(concept);
-
-  if (!client) {
-    console.log(`[Titles API] No key found. Serving high-fidelity fallback for concept: "${concept}" (${category})`);
-    return res.json(getFallbackTitles(concept));
-  }
-
   try {
+    const client = getGeminiClient();
+    const category = getNicheCategory(concept);
+
+    if (!client) {
+      console.log(`[Titles API] No key found. Serving high-fidelity fallback for concept: "${concept}" (${category})`);
+      return res.json(getFallbackTitles(concept));
+    }
+
     const prompt = `Formulate exactly 6 highly-optimized, high-CTR YouTube titles for the concept: "${concept}".
 Requirements:
 - Must avoid cliché phrases and standard clickbait structures.
@@ -201,7 +228,7 @@ Requirements:
 Temperature: 0.78 for balanced conversion.
 Provide output in JSON format.`;
 
-    const response = await client.models.generateContent({
+    const response = await generateWithFallback(client, {
       model: "gemini-3.5-flash",
       contents: prompt,
       config: {
@@ -228,8 +255,14 @@ Provide output in JSON format.`;
     }
     throw new Error("Invalid title response.");
   } catch (err: any) {
-    console.error("[Titles Generation Error] falling back to local database:", err.message);
-    return res.json(getFallbackTitles(concept));
+    console.error("[Titles Generation Error] falling back to local database:", err.message || err);
+    try {
+      if (!res.headersSent) {
+        return res.json(getFallbackTitles(concept));
+      }
+    } catch (fallbackErr) {
+      console.error("Critical fallback failure in titles API:", fallbackErr);
+    }
   }
 });
 
@@ -240,15 +273,15 @@ app.post("/api/scripts/generate", async (req, res) => {
     return res.status(400).json({ error: "Title is required." });
   }
 
-  const client = getGeminiClient();
-  const category = getNicheCategory(title);
-
-  if (!client) {
-    console.log(`[Scripts API] No key found. Serving high-fidelity fallback for script: "${title}" (${category})`);
-    return res.json(getFallbackScript(title, duration));
-  }
-
   try {
+    const client = getGeminiClient();
+    const category = getNicheCategory(title);
+
+    if (!client) {
+      console.log(`[Scripts API] No key found. Serving high-fidelity fallback for script: "${title}" (${category})`);
+      return res.json(getFallbackScript(title, duration));
+    }
+
     const prompt = `Generate a high-retaining YouTube video script skeleton for: "${title}" (Duration: ${duration || "5 minutes"}).
 Structure requirements:
 1. Hook (The first sentences)
@@ -259,7 +292,7 @@ Structure requirements:
 Temperature: 0.7.
 Provide output in JSON format.`;
 
-    const response = await client.models.generateContent({
+    const response = await generateWithFallback(client, {
       model: "gemini-3.5-flash",
       contents: prompt,
       config: {
@@ -296,8 +329,14 @@ Provide output in JSON format.`;
     }
     throw new Error("Empty script generated.");
   } catch (err: any) {
-    console.error("[Scripts Generation Error] falling back to local database:", err.message);
-    return res.json(getFallbackScript(title, duration));
+    console.error("[Scripts Generation Error] falling back to local database:", err.message || err);
+    try {
+      if (!res.headersSent) {
+        return res.json(getFallbackScript(title, duration));
+      }
+    } catch (fallbackErr) {
+      console.error("Critical fallback failure in scripts API:", fallbackErr);
+    }
   }
 });
 
@@ -308,34 +347,34 @@ app.post("/api/hashtags/generate", async (req, res) => {
     return res.status(400).json({ error: "Video details are required." });
   }
 
-  const client = getGeminiClient();
-  const category = getNicheCategory(videoDetails);
-
-  if (!client) {
-    console.log(`[Tags API] No key found. Serving high-fidelity fallback tags for category: "${category}"`);
-    if (category === "chess") {
-      return res.json({
-        tags: ["chess", "grandmaster", "chessengine", "stockfish", "elo", "openingtrap", "siciliandefense"],
-        hashtags: ["chess", "grandmaster", "chesstactics", "elo", "stockfish"]
-      });
-    }
-    if (category === "cooking") {
-      return res.json({
-        tags: ["cooking", "steak", "maillardreaction", "cookinghacks", "baking", "sourdough", "foodscience"],
-        hashtags: ["cooking", "chef", "steak", "recipe", "foodie"]
-      });
-    }
-    return res.json({
-      tags: [category, "youtube", "viral", "creators", "analytics", "growth", "strategy"],
-      hashtags: [category, "creators", "video", "growth", "viral"]
-    });
-  }
-
   try {
+    const client = getGeminiClient();
+    const category = getNicheCategory(videoDetails);
+
+    if (!client) {
+      console.log(`[Tags API] No key found. Serving high-fidelity fallback tags for category: "${category}"`);
+      if (category === "chess") {
+        return res.json({
+          tags: ["chess", "grandmaster", "chessengine", "stockfish", "elo", "openingtrap", "siciliandefense"],
+          hashtags: ["chess", "grandmaster", "chesstactics", "elo", "stockfish"]
+        });
+      }
+      if (category === "cooking") {
+        return res.json({
+          tags: ["cooking", "steak", "maillardreaction", "cookinghacks", "baking", "sourdough", "foodscience"],
+          hashtags: ["cooking", "chef", "steak", "recipe", "foodie"]
+        });
+      }
+      return res.json({
+        tags: [category, "youtube", "viral", "creators", "analytics", "growth", "strategy"],
+        hashtags: [category, "creators", "video", "growth", "viral"]
+      });
+    }
+
     const prompt = `Provide exactly 15 high-intent tags and 5 focused hashtags for a video in the "${category}" niche with these details: "${videoDetails}".
 Provide output in JSON format. No markdown wrapping.`;
 
-    const response = await client.models.generateContent({
+    const response = await generateWithFallback(client, {
       model: "gemini-3.5-flash",
       contents: prompt,
       config: {
@@ -359,11 +398,18 @@ Provide output in JSON format. No markdown wrapping.`;
     }
     throw new Error("Invalid tag response.");
   } catch (err: any) {
-    console.error("[Tags Generation Error] falling back to seed database:", err.message);
-    return res.json({
-      tags: [category, "youtube", "viral", "creators", "analytics", "growth", "strategy"],
-      hashtags: [category, "creators", "video", "growth", "viral"]
-    });
+    console.error("[Tags Generation Error] falling back to seed database:", err.message || err);
+    try {
+      if (!res.headersSent) {
+        const cat = getNicheCategory(videoDetails);
+        return res.json({
+          tags: [cat, "youtube", "viral", "creators", "analytics", "growth", "strategy"],
+          hashtags: [cat, "creators", "video", "growth", "viral"]
+        });
+      }
+    } catch (fallbackErr) {
+      console.error("Critical fallback failure in hashtags API:", fallbackErr);
+    }
   }
 });
 
@@ -371,19 +417,19 @@ Provide output in JSON format. No markdown wrapping.`;
 app.post("/api/trend/analyze", async (req, res) => {
   const { category } = req.body;
   const cn = category || "General Tech";
-  const cat = getNicheCategory(cn);
-
-  const client = getGeminiClient();
-  if (!client) {
-    console.log(`[Trend Analyzer API] No key found. Serving high-fidelity seed trends for category: "${cn}"`);
-    return res.json(getSeedTrends(cat));
-  }
 
   try {
+    const cat = getNicheCategory(cn);
+    const client = getGeminiClient();
+    if (!client) {
+      console.log(`[Trend Analyzer API] No key found. Serving high-fidelity seed trends for category: "${cn}"`);
+      return res.json(getSeedTrends(cat));
+    }
+
     const prompt = `Analyze current trending topics, competitor gaps, and CTR optimization guidelines for the category: "${cn}".
 Provide output in JSON matching the TrendAnalysisResponse schema exactly. No markdown wrapping.`;
 
-    const response = await client.models.generateContent({
+    const response = await generateWithFallback(client, {
       model: "gemini-3.5-flash",
       contents: prompt,
       config: {
@@ -451,8 +497,15 @@ Provide output in JSON matching the TrendAnalysisResponse schema exactly. No mar
     }
     throw new Error("No response text.");
   } catch (err: any) {
-    console.error("[Trend Analyze Error] falling back to seed data:", err.message);
-    return res.json(getSeedTrends(cat));
+    console.error("[Trend Analyze Error] falling back to seed data:", err.message || err);
+    try {
+      if (!res.headersSent) {
+        const cat = getNicheCategory(cn);
+        return res.json(getSeedTrends(cat));
+      }
+    } catch (fallbackErr) {
+      console.error("Critical fallback failure in trend analyze API:", fallbackErr);
+    }
   }
 });
 
@@ -534,13 +587,13 @@ function getSeedTrends(cat: string) {
 app.post("/api/trend/estimate-ctr", async (req, res) => {
   const { title, thumbnailStyle, category } = req.body;
 
-  const client = getGeminiClient();
-  if (!client) {
-    console.log("[CTR Predictor API] No key found. Serving high-fidelity CTR evaluation report.");
-    return res.json(getFallbackCtrReport(title || "Generic YouTube Video", category || "Tech"));
-  }
-
   try {
+    const client = getGeminiClient();
+    if (!client) {
+      console.log("[CTR Predictor API] No key found. Serving high-fidelity CTR evaluation report.");
+      return res.json(getFallbackCtrReport(title || "Generic YouTube Video", category || "Tech"));
+    }
+
     const prompt = `Evaluate the CTR potential for this video draft:
 Title: "${title}"
 Thumbnail Style description: "${thumbnailStyle}"
@@ -549,7 +602,7 @@ Category: "${category}"
 Analyze precisely: Title strength, visual saliency, psychological triggers, and generate a concrete critique, improved title alternative, and predictive rating.
 Provide output in JSON matching the CTREvaluationResponse schema. No markdown wrapping.`;
 
-    const response = await client.models.generateContent({
+    const response = await generateWithFallback(client, {
       model: "gemini-3.5-flash",
       contents: prompt,
       config: {
@@ -588,8 +641,14 @@ Provide output in JSON matching the CTREvaluationResponse schema. No markdown wr
     }
     throw new Error("Empty CTR response.");
   } catch (err: any) {
-    console.error("[CTR Estimation Error] falling back to static CTR model:", err.message);
-    return res.json(getFallbackCtrReport(title, category));
+    console.error("[CTR Estimation Error] falling back to static CTR model:", err.message || err);
+    try {
+      if (!res.headersSent) {
+        return res.json(getFallbackCtrReport(title, category));
+      }
+    } catch (fallbackErr) {
+      console.error("Critical fallback failure in estimate CTR API:", fallbackErr);
+    }
   }
 });
 
@@ -623,13 +682,13 @@ app.post("/api/chat/message", async (req, res) => {
     return res.status(400).json({ error: "Message is required." });
   }
 
-  const client = getGeminiClient();
-  if (!client) {
-    return res.json({ text: "Hello! I am your YouTube Strategist Assistant. Configure your GEMINI_API_KEY in the Secrets panel to activate my intelligent AI reasoning engines. Currently operating in offline high-fidelity simulator mode." });
-  }
-
   try {
-    const response = await client.models.generateContent({
+    const client = getGeminiClient();
+    if (!client) {
+      return res.json({ text: "Hello! I am your YouTube Strategist Assistant. Configure your GEMINI_API_KEY in the Secrets panel to activate my intelligent AI reasoning engines. Currently operating in offline high-fidelity simulator mode." });
+    }
+
+    const response = await generateWithFallback(client, {
       model: "gemini-3.5-flash",
       contents: message,
       config: {
@@ -643,8 +702,14 @@ app.post("/api/chat/message", async (req, res) => {
     }
     throw new Error("No text response from chat assistant.");
   } catch (err: any) {
-    console.error("[Chat API Error]:", err.message);
-    return res.json({ text: "I ran into a temporary loading delay connecting to the AI brain. Let's focus on refining your video titles or optimizing your hook scripts manually!" });
+    console.error("[Chat API Error]:", err.message || err);
+    try {
+      if (!res.headersSent) {
+        return res.json({ text: "I ran into a temporary loading delay connecting to the AI brain. Let's focus on refining your video titles or optimizing your hook scripts manually!" });
+      }
+    } catch (fallbackErr) {
+      console.error("Critical fallback failure in chat API:", fallbackErr);
+    }
   }
 });
 

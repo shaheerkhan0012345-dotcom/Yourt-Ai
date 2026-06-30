@@ -205,7 +205,7 @@ export default function App() {
           
           const getDocPromise = getDoc(userDocRef);
           const timeoutPromise = new Promise<never>((_, reject) => 
-            setTimeout(() => reject(new Error("Firestore fetch timed out")), 1500)
+            setTimeout(() => reject(new Error("Firestore fetch timed out")), 15000)
           );
           const snap = await Promise.race([getDocPromise, timeoutPromise]);
           if (snap.exists()) {

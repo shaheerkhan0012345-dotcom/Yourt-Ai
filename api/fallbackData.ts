@@ -431,6 +431,302 @@ export function getFallbackIdeas(niche: string, targetAudience: string) {
     ];
   }
 
+  if (cat === "tech") {
+    return [
+      {
+        id: "tech-idea-1",
+        title: `I Tested the Most Hyped "${cn}" Gadget for 1 Week`,
+        conceptDescription: `An honest, high-production breakdown of the latest "${cn}" tech, testing real performance under stressful daily tasks.`,
+        whyItWillWork: "Curiosity loop and early adopter excitement.",
+        thumbnailSuggestion: `A clean macro lens focus on the core "${cn}" component glowing under cool purple LEDs.`,
+        potentialMetric: "Viral Potential"
+      },
+      {
+        id: "tech-idea-2",
+        title: `Why Most People Waste Money on "${cn}" Setups`,
+        conceptDescription: `Analyzing expensive vs budget components, exposing marketing scams, and detailing the optimal hardware blueprint.`,
+        whyItWillWork: "Direct financial reassurance and expert-backed authority.",
+        thumbnailSuggestion: `A red warning circle around an overpriced component side-by-side with a highly rated budget alternative.`,
+        potentialMetric: "Insane Retention"
+      },
+      {
+        id: "tech-idea-3",
+        title: `The Secret "${cn}" Feature You Aren't Using`,
+        conceptDescription: `Step-by-step walkthrough of a hidden software setting or hardware capability that boosts speed by 200%.`,
+        whyItWillWork: "Instant-gratification power-user hacks.",
+        thumbnailSuggestion: `A finger pointing at a glowing virtual button inside a clean mockup UI.`,
+        potentialMetric: "Exceptional AVD"
+      },
+      {
+        id: "tech-idea-4",
+        title: `Is This "${cn}" Hack Actually Genius or a Scam?`,
+        conceptDescription: `Testing a viral online setup trick under scientific benchmarks to see if it delivers real results.`,
+        whyItWillWork: "Myth-busting format that captures dynamic trending curiosity.",
+        thumbnailSuggestion: `A side-by-side comparison chart with green 'GENIUS' and red 'SCAM' status indicators.`,
+        potentialMetric: "S-Tier"
+      }
+    ];
+  }
+
+  if (cat === "travel") {
+    return [
+      {
+        id: "travel-idea-1",
+        title: `I Traveled to the Most Underrated "${cn}" Spot on Earth`,
+        conceptDescription: `A highly cinematic narrative journey exploring local hidden secrets, budget routes, and organic cultural food scenes.`,
+        whyItWillWork: "Immersive escapism and high visual satisfaction.",
+        thumbnailSuggestion: `A breathtaking wide-angle shot of the host standing on a pristine cliff edge overlooking a hidden valley.`,
+        potentialMetric: "Viral Potential"
+      },
+      {
+        id: "travel-idea-2",
+        title: `Avoid These 3 Costly Mistakes in "${cn}" Travels`,
+        conceptDescription: `Warning viewers about common tourist scams, bad transport links, and safety concerns when planning a trip.`,
+        whyItWillWork: "Loss-prevention urgency; highly practical advice for safe journeys.",
+        thumbnailSuggestion: `A passport and a map stamped with a large red warning warning symbol.`,
+        potentialMetric: "Insane Retention"
+      },
+      {
+        id: "travel-idea-3",
+        title: `How to Travel "${cn}" Like a Local (For Under $50 a Day)`,
+        conceptDescription: `Unpacking low-budget accommodation hacks, cheap transportation, and authentic dining secrets.`,
+        whyItWillWork: "Provides high-value financial accessibility for travelers.",
+        thumbnailSuggestion: `A stack of cash next to a minimalist backpack and local train tickets.`,
+        potentialMetric: "Exceptional AVD"
+      },
+      {
+        id: "travel-idea-4",
+        title: `My Honest Experience Living "${cn}" for 30 Days`,
+        conceptDescription: `A raw lifestyle documentary highlighting daily schedules, cost of living, and the realities of travel life.`,
+        whyItWillWork: "High personal engagement and aspirational lifestyle curiosity.",
+        thumbnailSuggestion: `A split screen showcasing a gorgeous sunset view and a cozy, compact living space.`,
+        potentialMetric: "S-Tier"
+      }
+    ];
+  }
+
+  if (cat === "diy") {
+    return [
+      {
+        id: "diy-idea-1",
+        title: `I Restored a Ruined "${cn}" Project (Satisfying Transformation)`,
+        conceptDescription: `A high-tempo, satisfying step-by-step restoration of a damaged piece, detailing raw material preparation and final finishes.`,
+        whyItWillWork: "Highly visual therapeutic transformation loop.",
+        thumbnailSuggestion: `Dramatic side-by-side before-and-after split showing rusted dust versus a gleaming polished finish.`,
+        potentialMetric: "Viral Potential"
+      },
+      {
+        id: "diy-idea-2",
+        title: `Stop Doing "${cn}" Like This: 3 Mistakes Ruining Your Builds`,
+        conceptDescription: `A technical coaching breakdown highlighting structural errors, tool misuse, and material failure points.`,
+        whyItWillWork: "Constructive feedback that protects the builder from failed projects.",
+        thumbnailSuggestion: `A cracked joint highlighted by a red warning box next to a pristine, reinforced master joint.`,
+        potentialMetric: "Insane Retention"
+      },
+      {
+        id: "diy-idea-3",
+        title: `I Built the Ultimate "${cn}" Using Only Basic Hand Tools`,
+        conceptDescription: `Challenging yourself to complete a premium project without complex machines, showing pure hand skill and ingenuity.`,
+        whyItWillWork: "Highly accessible, low-friction motivation that feels satisfying to watch.",
+        thumbnailSuggestion: `A wooden workbench with classic hand chisels and a beautiful finished wood structure.`,
+        potentialMetric: "Exceptional AVD"
+      },
+      {
+        id: "diy-idea-4",
+        title: `This $10 "${cn}" Hack Will Save You Hundreds of Dollars`,
+        conceptDescription: `Detailing a clever material substitute or jig setup that yields premium results on a tiny budget.`,
+        whyItWillWork: "High reward, low-cost value hack that home builders can execute today.",
+        thumbnailSuggestion: `A cheap everyday household item performing a highly specialized alignment task correctly.`,
+        potentialMetric: "S-Tier"
+      }
+    ];
+  }
+
+  if (cat === "design") {
+    return [
+      {
+        id: "design-idea-1",
+        title: `I Completely Redesigned This Famous "${cn}" Layout`,
+        conceptDescription: `A high-level aesthetic critique and speed-art process redesigning a popular brand or interface from the ground up.`,
+        whyItWillWork: "Fascinating visual transition and expert-level design authority.",
+        thumbnailSuggestion: `A split screen comparing a busy, dated original visual next to a clean, elegant modern design.`,
+        potentialMetric: "Viral Potential"
+      },
+      {
+        id: "design-idea-2",
+        title: `Why Modern "${cn}" Designs Feel Extremely Soulless`,
+        conceptDescription: `Analyzing the shift from artistic personality to corporate minimalism, discussing typography, color theory, and layout rhythm.`,
+        whyItWillWork: "Contrarian design philosophy discussion that generates high community debate.",
+        thumbnailSuggestion: `A stylized visual showing identical gray boxes compared with a vintage colorful poster asset.`,
+        potentialMetric: "Insane Retention"
+      },
+      {
+        id: "design-idea-3",
+        title: `How to Master "${cn}" Color Harmonies in 5 Minutes`,
+        conceptDescription: `A practical masterclass on choosing palettes, setting visual contrast, and matching typography to create premium hierarchy.`,
+        whyItWillWork: "Actionable creative skill boost that solves layout amateurism.",
+        thumbnailSuggestion: `A sleek digital color wheel displaying golden ratios next to a elegant text card.`,
+        potentialMetric: "Exceptional AVD"
+      },
+      {
+        id: "design-idea-4",
+        title: `3 UI/UX Flaws Keeping Your "${cn}" Designs Unprofessional`,
+        conceptDescription: `Pinpointing alignment errors, poor kerning, and weak padding issues with real-time corrective edits.`,
+        whyItWillWork: "Instant corrective styling tips that deliver immediate visual upgrades.",
+        thumbnailSuggestion: `A red target highlighting bad letter spacing next to a balanced pixel-perfect layout.`,
+        potentialMetric: "S-Tier"
+      }
+    ];
+  }
+
+  if (cat === "music") {
+    return [
+      {
+        id: "music-idea-1",
+        title: `I Attempted to Write a "${cn}" Song in 2 Hours (With No Theory)`,
+        conceptDescription: `A fast-paced creative challenge documenting songwriting, chord progression structuring, and vocal mixing from scratch.`,
+        whyItWillWork: "High-tempo creative tension and relatable learning curve.",
+        thumbnailSuggestion: `A glowing audio workstation timeline with a ticking stopwatch overlay at 01:59.`,
+        potentialMetric: "Viral Potential"
+      },
+      {
+        id: "music-idea-2",
+        title: `Why Most Independent "${cn}" Tracks Sound Muddy`,
+        conceptDescription: `Exposing frequency masking in the low-end, bad EQ panning, and how to glue your master mix.`,
+        whyItWillWork: "Highly specific production-coaching value for home studio owners.",
+        thumbnailSuggestion: `A spectral analyzer screen showing red collision zones compared with clean, isolated stem waves.`,
+        potentialMetric: "Insane Retention"
+      },
+      {
+        id: "music-idea-3",
+        title: `The 3 Chord Voicings That Make "${cn}" Sound Cinematic`,
+        conceptDescription: `A physical instrument lesson showing beautiful extensions and voicing transitions that add instant emotion.`,
+        whyItWillWork: "Immediate practical value; guitarists/pianists can play these right away.",
+        thumbnailSuggestion: `Close-up of fingers on a fretboard with glowing neon coordinate chord notes layered on top.`,
+        potentialMetric: "Exceptional AVD"
+      },
+      {
+        id: "music-idea-4",
+        title: `Testing the Hardest "${cn}" Solo (Can I Learn It in 24 Hours?)`,
+        conceptDescription: `A highly engaging progress diary practicing a legendary difficult riff or performance piece under pressure.`,
+        whyItWillWork: "Authentic practice struggle coupled with a satisfying final execution payoff.",
+        thumbnailSuggestion: `Close-up of fingers moving fast across keys/frets with dynamic speed lines and a timer.`,
+        potentialMetric: "S-Tier"
+      }
+    ];
+  }
+
+  if (cat === "self_improvement") {
+    return [
+      {
+        id: "self-idea-1",
+        title: `I Followed a Strict "${cn}" Routine for 30 Days (Real Results)`,
+        conceptDescription: `A detailed self-experiment documenting cognitive load, energy levels, and psychological changes after adopting simple daily rules.`,
+        whyItWillWork: "Transformational aspirational content backed by real personal progress tracker charts.",
+        thumbnailSuggestion: `A clean habit tracking grid shifting from red blank slots to a long streak of bright green circles.`,
+        potentialMetric: "Viral Potential"
+      },
+      {
+        id: "self-idea-2",
+        title: `Why Your Current "${cn}" Habits are Keeping You Stuck`,
+        conceptDescription: `Exposing self-sabotaging dopamine traps, friction points in your environment, and how to construct identity-driven habits.`,
+        whyItWillWork: "Direct, empathetic psychology coaching targeting daily frustration.",
+        thumbnailSuggestion: `A minimalist split design: a heavy iron chain of 'Old Routines' next to a bright open door of 'Pristine Habits'.`,
+        potentialMetric: "Insane Retention"
+      },
+      {
+        id: "self-idea-3",
+        title: `How to Master "${cn}" and Reclaim Your Attention Span`,
+        conceptDescription: `Unpacking digital distraction triggers, dopamine fast setups, and building a high-focus environment for deep work.`,
+        whyItWillWork: "Extremely popular contemporary cultural pain-point solution.",
+        thumbnailSuggestion: `A smartphone showing an active 'Do Not Disturb' screen alongside a warm wooden desk with a single notebook.`,
+        potentialMetric: "Exceptional AVD"
+      },
+      {
+        id: "self-idea-4",
+        title: `The Minimalist "${cn}" Blueprint You Actually Need in 2026`,
+        conceptDescription: `Stripping away over-complicated productivity systems to provide a clean, three-step execution framework.`,
+        whyItWillWork: "Anti-bloat reassurance; simplifies overwhelming personal growth concepts.",
+        thumbnailSuggestion: `A clean bento-box style layout highlighting three minimalist icons next to a calm glowing sun.`,
+        potentialMetric: "S-Tier"
+      }
+    ];
+  }
+
+  if (cat === "education") {
+    return [
+      {
+        id: "edu-idea-1",
+        title: `The Mind-Bending Physics of "${cn}" Explained simply`,
+        conceptDescription: `A highly visual, engaging explanation of a complex academic concept or historical turning point using sleek whiteboard animations.`,
+        whyItWillWork: "Intellectual curiosity loop paired with simple, elegant visual analogies.",
+        thumbnailSuggestion: `A dynamic diagram showing astronomical vectors or historical timelines glowing with gold sparks on chalk black.`,
+        potentialMetric: "Viral Potential"
+      },
+      {
+        id: "edu-idea-2",
+        title: `Why 95% of Textbooks Get "${cn}" Completely Wrong`,
+        conceptDescription: `Exposing popular historical myths or scientific oversimplifications with primary sources and deep historical analysis.`,
+        whyItWillWork: "Contrarian authority that challenges traditional schooling beliefs.",
+        thumbnailSuggestion: `A traditional textbook with a large red 'REJECTED' stamp next to a glowing historical scroll.`,
+        potentialMetric: "Insane Retention"
+      },
+      {
+        id: "edu-idea-3",
+        title: `How I Memorized an Entire "${cn}" Course in 3 Days`,
+        conceptDescription: `Walkthrough of highly optimized memory palace techniques, active recall cycles, and spaced repetition setups.`,
+        whyItWillWork: "Incredible value for students and professional learners stuck before exams.",
+        thumbnailSuggestion: `A digital neural network mapping model displaying glowing nodes alongside a neat desk setup.`,
+        potentialMetric: "Exceptional AVD"
+      },
+      {
+        id: "edu-idea-4",
+        title: `The Paradox of "${cn}" That Baffled Scientists for Decades`,
+        conceptDescription: `A fascinating scientific mystery story tracking the initial discovery, failure of standard logic, and the ultimate breakthrough.`,
+        whyItWillWork: "High suspense storytelling format focusing on deep mystery resolution.",
+        thumbnailSuggestion: `A split screen illustrating a physical equation collapsing on one side and a glowing question mark on the other.`,
+        potentialMetric: "S-Tier"
+      }
+    ];
+  }
+
+  if (cat === "asmr") {
+    return [
+      {
+        id: "asmr-idea-1",
+        title: `ASMR "${cn}" for Instant Deep Sleep and Relaxation (No Talking)`,
+        conceptDescription: `Ultra-high-fidelity binaural recordings of tactile triggers, tapping, scratching, and visual elements themed around "${cn}".`,
+        whyItWillWork: "A therapeutic, sleep-inducing trigger format that enjoys highly dedicated loop viewers.",
+        thumbnailSuggestion: `A beautiful wooden box with micro-lens focus, softly lit with ambient warm fairy lights.`,
+        potentialMetric: "Viral Potential"
+      },
+      {
+        id: "asmr-idea-2",
+        title: `ASMR "${cn}" Sound Therapy: 3 Triggers You've Never Heard`,
+        conceptDescription: `Using custom handmade materials to produce slow, relaxing spatial sounds that induce intense brain tingles.`,
+        whyItWillWork: "Novel acoustic sensory exploration for ASMR enthusiasts.",
+        thumbnailSuggestion: `A binaural spatial microphone with soft brush bristles captured in a slow-shutter motion blur.`,
+        potentialMetric: "Insane Retention"
+      },
+      {
+        id: "asmr-idea-3",
+        title: `ASMR Quiet Coaching: How to Unwind Your Brain Tonight`,
+        conceptDescription: `A gentle, whisper-voiced guidance through breathing exercises, sensory mapping, and positive cognitive loops.`,
+        whyItWillWork: "Empathetic calming reassurance for anxiety relief.",
+        thumbnailSuggestion: `A silhouette of a person looking at a calm starry sky, surrounded by soft purple halos.`,
+        potentialMetric: "Exceptional AVD"
+      },
+      {
+        id: "asmr-idea-4",
+        title: `The Science of ASMR Tingles: Why "${cn}" Relieves Stress`,
+        conceptDescription: `A quiet, relaxing breakdown of the neurological pathways, vagus nerve stimulation, and cortisol reduction from sounds.`,
+        whyItWillWork: "Educational but cozy content for health-conscious sleep seekers.",
+        thumbnailSuggestion: `A glowing, warm neurological mapping icon alongside an elegant wave frequency display.`,
+        potentialMetric: "S-Tier"
+      }
+    ];
+  }
+
   // Default / general fallback
   return [
     {
