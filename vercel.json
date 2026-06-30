@@ -1,15 +1,12 @@
 {
   "version": 2,
-  "vercelToolbar": {
-    "enabled": false
-  },
   "rewrites": [
     {
       "source": "/api/(.*)",
       "destination": "/api/index.ts"
     },
     {
-      "source": "/((?!api).*)" ,
+      "source": "/((?!api).*)",
       "destination": "/index.html"
     }
   ]
