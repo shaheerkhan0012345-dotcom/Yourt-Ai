@@ -1,12 +1,5 @@
-<<<<<<< HEAD
 # Yourt AI — All-in-One AI Suite for YouTube Creators 🚀
 
-=======
-
-   `npm run dev`
-# Yourt AI — All-in-One AI Suite for YouTube Creators 🚀
-
->>>>>>> 6254c74c4256403116b13990c16ea0a9723e7189
 Yourt AI is a comprehensive, production-ready, full-stack platform designed to supercharge your YouTube production workflow. It brings together cutting-edge generative AI capabilities, real-time metrics, dynamic text generation, calendar scheduling, and automated scripts—all in a beautifully designed, high-contrast creator workspace.
 
 ---
@@ -67,7 +60,6 @@ npm install
 
 Create a `.env` file in the root directory (using `.env.example` as a template):
 
-<<<<<<< HEAD
 ```env
 # Gemini API Configuration (Server-side Only)
 GEMINI_API_KEY=your_gemini_api_key_here
@@ -80,8 +72,6 @@ VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
 ```
-=======
->>>>>>> 6254c74c4256403116b13990c16ea0a9723e7189
 
 ### 5. Running the Application
 
